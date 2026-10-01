@@ -1,0 +1,4 @@
+Tool: built-in image_gen (product-mockup)
+Output: public/images/off-duty.png
+
+Use case: product-mockup. Asset type: default product image and storefront hero for Lightmare, a graphic tee brand. Photorealistic premium ecommerce flat lay of a vintage ivory oversized cotton T-shirt on warm beige textured paper. Whole tee visible, arranged naturally at a slight angle with subtle realistic folds and soft directional daylight shadows. Chest print in dark burgundy: large elegant italic lowercase serif 'off duty' and below in small tracked capitals 'SOCIAL CLUB', tiny 'LIGHTMARE' below. Quiet nostalgic independent fashion editorial, warm cream and oxblood palette. Square composition, no props, no borders, no watermark, no text outside shirt.

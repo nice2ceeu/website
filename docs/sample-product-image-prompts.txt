@@ -1,0 +1,7 @@
+Generated with the built-in image_gen tool. Images are sample product mockups.
+
+Saved path: public/images/after-hours-sample.png
+Prompt: Use case: product-mockup. Create a square premium ecommerce product photograph for Lightmare. A single washed charcoal oversized cotton crewneck tee, entire shirt including sleeves and hem fully visible with generous margin, top-down flat lay on warm pale beige studio backdrop, soft natural daylight, realistic cotton grain and relaxed folds. Original chest graphic in faded butter yellow: crescent moon and tiny stars above elegant vintage serif text exactly 'after hours', small capitals 'LIGHTMARE' beneath. Tasteful understated late-night indie streetwear aesthetic. No props, no people, no external text, no watermark. This is a sample product mockup.
+
+Saved path: public/images/slow-mornings-sample.png
+Prompt: Use case: product-mockup. Square premium ecommerce photograph for Lightmare. One soft sage green oversized cotton crewneck T-shirt, whole garment including sleeves and hem fully visible with generous margin, laid flat on warm ivory paper studio backdrop, realistic cotton grain and soft folds, gentle natural daylight shadows. Original small chest graphic in warm cream ink: a delicate hand-drawn daisy with vintage italic serif wording exactly 'slow mornings', small capitals 'LIGHTMARE' underneath. Relaxed independent graphic tee aesthetic. No props, no people, no watermark, no text outside garment. Sample product mockup.
