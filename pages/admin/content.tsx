@@ -3,17 +3,24 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import AdminLayout from '@/components/AdminLayout';
 import { contentFields, defaultLanding, type LandingContent } from '@/lib/landing-content';
-import type { Product } from '@/lib/catalog';
+
+const categories = ['Page content', 'Shopping help', 'Contact & socials', 'Settings'] as const;
+type Category = (typeof categories)[number];
+function categoryFor(group: string): Category {
+  if (['Size guide', 'How to order', 'Shipping & care', 'FAQs'].includes(group))
+    return 'Shopping help';
+  if (group === 'Socials') return 'Contact & socials';
+  if (['SEO', 'Header & footer'].includes(group)) return 'Settings';
+  return 'Page content';
+}
 
 export default function ContentEditor({
   content,
   revision: initialRevision,
-  products,
   error,
 }: {
   content: LandingContent;
   revision: number;
-  products: Product[];
   error: string;
 }) {
   const [draft, setDraft] = useState(content),
@@ -21,6 +28,7 @@ export default function ContentEditor({
     [revision, setRevision] = useState(initialRevision),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(error);
+  const [category, setCategory] = useState<Category>('Page content');
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,10 +57,7 @@ export default function ContentEditor({
       <h1>
         Your story. <em>Your words.</em>
       </h1>
-      <p>
-        Edit landing-page content here. Products and prices belong in Products; layout, checkout
-        rules, and the shipping fee stay in code.
-      </p>
+      <p>Choose a category to edit. Publish when you are ready.</p>
       <Link className="text-link" href="/" target="_blank" rel="noreferrer">
         View published landing page ↗
       </Link>
@@ -61,7 +66,22 @@ export default function ContentEditor({
           {message}
         </p>
       )}
-      <form onSubmit={publish}>
+      <form
+        onSubmit={publish}
+        onInvalidCapture={(event) => {
+          event.preventDefault();
+          const input = event.target as HTMLInputElement;
+          setMessage(input.validationMessage || 'Please check the highlighted field.');
+          const section = input.closest<HTMLDetailsElement>('details[data-category]');
+          if (section) {
+            setCategory(section.dataset.category as Category);
+            section.open = true;
+          }
+          requestAnimationFrame(() => {
+            input.focus();
+          });
+        }}
+      >
         <div className="cms-toolbar">
           <span>{dirty ? 'Unpublished changes' : 'All changes published'}</span>
           <div className="product-actions">
@@ -78,9 +98,26 @@ export default function ContentEditor({
             </button>
           </div>
         </div>
+        <nav className="cms-categories" aria-label="Content categories">
+          {categories.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={category === item}
+              onClick={() => setCategory(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
         <fieldset disabled={busy || revision < 1} className="cms-fields">
           {[...new Set(contentFields.map(([, group]) => group))].map((group) => (
-            <details className="cms-section" key={group} open={group === 'Hero'}>
+            <details
+              className="cms-section"
+              key={group}
+              data-category={categoryFor(group)}
+              hidden={categoryFor(group) !== category}
+            >
               <summary>{group}</summary>
               <div className="form-grid">
                 {contentFields
@@ -102,32 +139,12 @@ export default function ContentEditor({
               </div>
             </details>
           ))}
-          <details className="cms-section">
-            <summary>Featured product</summary>
-            <label>
-              Hero product
-              <select
-                value={draft.featuredSlug}
-                onChange={(e) => setDraft({ ...draft, featuredSlug: e.target.value })}
-              >
-                <option value="">Automatic (first published product)</option>
-                {products.map((p) => (
-                  <option value={p.slug} key={p.slug}>
-                    {p.name}
-                    {p.active ? '' : ' (draft)'}
-                  </option>
-                ))}
-                {draft.featuredSlug && !products.some((p) => p.slug === draft.featuredSlug) && (
-                  <option value={draft.featuredSlug}>{draft.featuredSlug} (unavailable)</option>
-                )}
-              </select>
-            </label>
-            <p className="form-note">
-              An unavailable or unpublished selection falls back to the first published product.
-              Manage product photos in Products.
-            </p>
-          </details>
-          <details className="cms-section">
+          <details
+            className="cms-section"
+            data-category="Contact & socials"
+            hidden={category !== 'Contact & socials'}
+            open
+          >
             <summary>Contact & social links</summary>
             <div className="form-grid">
               <label className="full">
@@ -157,7 +174,11 @@ export default function ContentEditor({
               These are public links. Brevo sender and admin notification settings are separate.
             </p>
           </details>
-          <details className="cms-section">
+          <details
+            className="cms-section"
+            data-category="Page content"
+            hidden={category !== 'Page content'}
+          >
             <summary>Scrolling messages</summary>
             {draft.ticker.map((value, i) => (
               <label key={i}>
@@ -176,7 +197,11 @@ export default function ContentEditor({
               </label>
             ))}
           </details>
-          <details className="cms-section">
+          <details
+            className="cms-section"
+            data-category="Shopping help"
+            hidden={category !== 'Shopping help'}
+          >
             <summary>Order steps</summary>
             {draft.steps.map((step, i) => (
               <div className="cms-item" key={i}>
@@ -216,7 +241,11 @@ export default function ContentEditor({
               </div>
             ))}
           </details>
-          <details className="cms-section">
+          <details
+            className="cms-section"
+            data-category="Shopping help"
+            hidden={category !== 'Shopping help'}
+          >
             <summary>Size measurements (cm)</summary>
             <p className="form-note">
               Update garment measurements only. Product size availability is managed in Products.
@@ -265,7 +294,11 @@ export default function ContentEditor({
               </div>
             ))}
           </details>
-          <details className="cms-section">
+          <details
+            className="cms-section"
+            data-category="Shopping help"
+            hidden={category !== 'Shopping help'}
+          >
             <summary>FAQ questions & answers</summary>
             {draft.faqs.map((faq, i) => (
               <div className="cms-item" key={i}>
@@ -350,15 +383,13 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   if (!(await isAdmin(req))) return { redirect: { destination: '/admin/login', permanent: false } };
   try {
     const { getLanding } = await import('@/lib/cms');
-    const { getProducts } = await import('@/lib/products');
-    const [cms, products] = await Promise.all([getLanding(), getProducts(true)]);
-    return { props: { ...cms, products, error: '' } };
+    const cms = await getLanding();
+    return { props: { ...cms, error: '' } };
   } catch {
     return {
       props: {
         content: defaultLanding,
         revision: 0,
-        products: [],
         error:
           'CMS is unavailable. Run npm run db:cms and check the database connection. Publishing is disabled.',
       },

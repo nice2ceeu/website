@@ -7,3 +7,5 @@ next-env.d.ts
 public/images
 .env*
 certs
+
+data/addresses/philippines.json

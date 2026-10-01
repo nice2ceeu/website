@@ -3,6 +3,8 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle, Minus, Plus } from 'lucide-react';
 import Layout from '@/components/Layout';
+import AddressFields from '@/components/AddressFields';
+import SizeGuide from '@/components/SizeGuide';
 import { Product, money, sizes, store } from '@/lib/catalog';
 import type { LandingContent } from '@/lib/landing-content';
 export default function ProductPage({
@@ -79,7 +81,7 @@ function ProductDetail({ product, content }: { product: Product; content: Landin
             </div>
             <div className="color-choice">● {product.color}</div>
             <div className="choice-label">
-              SIZE <Link href="/#size-guide">Size guide ↗</Link>
+              SIZE <SizeGuide content={content} />
             </div>
             <div className="sizes">
               {(product.availableSizes || sizes).map((s) => (
@@ -172,40 +174,10 @@ function ProductDetail({ product, content }: { product: Product; content: Landin
                         pattern="[+0-9 ()\-]{7,25}"
                       />
                     </label>
-                    <label className="full">
-                      Street address / barangay
-                      <input
-                        required
-                        name="address"
-                        autoComplete="street-address"
-                        minLength={10}
-                        maxLength={500}
-                      />
-                    </label>
-                    <label>
-                      City / province
-                      <input
-                        required
-                        name="city"
-                        autoComplete="address-level2"
-                        minLength={2}
-                        maxLength={100}
-                      />
-                    </label>
-                    <label>
-                      Postal code
-                      <input
-                        required
-                        name="postalCode"
-                        autoComplete="postal-code"
-                        inputMode="numeric"
-                        pattern="[0-9]{4}"
-                        maxLength={4}
-                      />
-                    </label>
+                    <AddressFields />
                     <label className="full">
                       Order notes (optional)
-                      <textarea name="notes" rows={2} maxLength={1000} />
+                      <textarea name="notes" rows={2} maxLength={1000} style={{ resize: 'none' }} />
                     </label>
                   </div>
                   <p className="form-note">Shipping to the Philippines only.</p>

@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { randomUUID } from 'node:crypto';
 import { isAdmin } from '@/lib/auth';
 import { sameOrigin, rateLimit, clientKey } from '@/lib/api';
-import { db } from '@/lib/db';
+import { cloudinaryConfig, uploadToCloudinary } from '@/lib/cloudinary';
 import { MAX_IMAGE_BYTES, compressProductImage } from '@/lib/image-upload';
 export const config = { api: { bodyParser: false } };
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,6 +12,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end();
   }
   if (!sameOrigin(req, res)) return;
+  try {
+    cloudinaryConfig();
+  } catch {
+    return res
+      .status(503)
+      .json({ error: 'Cloudinary is not configured. Set the Cloudinary environment variables.' });
+  }
   if (!rateLimit(`upload:${clientKey(req)}`, 20, 600000))
     return res.status(429).json({ error: 'Too many uploads. Try again later.' });
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(req.headers['content-type'] || ''))
@@ -41,19 +47,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Could not process image. Use a valid, non-animated JPEG, PNG, or WebP under 10 MB and 40 megapixels.',
     });
   }
-  const id = randomUUID();
+  let uploaded;
   try {
-    await db().execute('INSERT INTO product_images (id,data,width,height) VALUES (?,?,?,?)', [
-      id,
-      image.data,
-      image.width,
-      image.height,
-    ]);
+    uploaded = await uploadToCloudinary(image.data);
   } catch {
-    return res.status(503).json({ error: 'Unable to store image. Check image database setup.' });
+    return res.status(503).json({
+      error: 'Unable to upload image to Cloudinary. Check the service configuration and try again.',
+    });
   }
   return res.status(201).json({
-    url: `/api/product-images/${id}`,
+    url: uploaded.url,
     originalBytes: length,
     compressedBytes: image.data.length,
     width: image.width,

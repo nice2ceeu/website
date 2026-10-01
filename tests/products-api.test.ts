@@ -73,4 +73,20 @@ test('product API protects mutations and performs create, edit, list and soft de
   assert.ok(statements[1].includes('UPDATE products SET slug=?'));
   assert.ok(statements[2].includes('deleted_at=CURRENT_TIMESTAMP'));
   assert.equal((await call('POST', true, undefined, { ...product, price: -1 })).status, 400);
+  const attempted: string[] = [];
+  t.mock.method(db(), 'execute', async (sql: string, values: unknown[]) => {
+    if (sql.includes('FROM admins')) return [[{ session_version: 1 }], []];
+    attempted.push(String(values[0]));
+    if (attempted.length === 1)
+      throw Object.assign(new Error('duplicate'), { code: 'ER_DUP_ENTRY' });
+    return [{ insertId: 6 }, []];
+  });
+  const created = await call('POST', true, undefined, {
+    ...product,
+    name: 'New Tee!',
+    autoSlug: true,
+  });
+  assert.equal(created.status, 201);
+  assert.deepEqual(attempted, ['new-tee', 'new-tee-2']);
+  assert.deepEqual(created.data, { id: 6, slug: 'new-tee-2' });
 });

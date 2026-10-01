@@ -5,6 +5,7 @@ import { sameOrigin } from '@/lib/api';
 import { db } from '@/lib/db';
 import { productPage } from '@/lib/list-data';
 import { productSchema } from '@/lib/product-validation';
+import { productSlug } from '@/lib/product-slug';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Cache-Control', 'no-store');
@@ -28,7 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ? res.json({ ok: true })
         : res.status(404).json({ error: 'Product not found.' });
     }
-    const parsed = productSchema.safeParse(req.body);
+    const autoSlug = req.method === 'POST' && (req.body?.autoSlug === true || !req.body?.slug);
+    const parsed = productSchema.safeParse(
+      autoSlug
+        ? {
+            ...req.body,
+            slug: productSlug(typeof req.body?.name === 'string' ? req.body.name : ''),
+          }
+        : req.body,
+    );
     if (!parsed.success)
       return res
         .status(400)
@@ -50,11 +59,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       p.tag,
     ];
     if (req.method === 'POST') {
-      const [result] = await db().execute<ResultSetHeader>(
-        'INSERT INTO products (slug,name,caption,price,color,image_url,sizes,active,design,ink,bg,subtitle,tag) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        values,
-      );
-      return res.status(201).json({ id: result.insertId });
+      for (let attempt = 1; attempt <= 1000; attempt++) {
+        if (autoSlug) values[0] = productSlug(p.name, attempt);
+        try {
+          const [result] = await db().execute<ResultSetHeader>(
+            'INSERT INTO products (slug,name,caption,price,color,image_url,sizes,active,design,ink,bg,subtitle,tag) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            values,
+          );
+          return res.status(201).json({ id: result.insertId, slug: values[0] });
+        } catch (error) {
+          if (!autoSlug || (error as { code?: string }).code !== 'ER_DUP_ENTRY' || attempt === 1000)
+            throw error;
+        }
+      }
     }
     const [result] = await db().execute<ResultSetHeader>(
       'UPDATE products SET slug=?,name=?,caption=?,price=?,color=?,image_url=?,sizes=?,active=?,design=?,ink=?,bg=?,subtitle=?,tag=? WHERE id=? AND deleted_at IS NULL',

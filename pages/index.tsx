@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Package, Heart, Sun } from 'lucide-react';
 import Layout from '@/components/Layout';
+import HeroCarousel from '@/components/HeroCarousel';
 import { money, store, type Product } from '@/lib/catalog';
 import type { GetServerSideProps } from 'next';
 import { defaultLanding, type LandingContent } from '@/lib/landing-content';
@@ -14,7 +15,6 @@ export default function Home({
   content: LandingContent;
 }) {
   const c = content.copy;
-  const featured = products.find((p) => p.slug === content.featuredSlug) || products[0];
   return (
     <Layout title={c.metaTitle} content={content}>
       <section className="hero">
@@ -34,42 +34,13 @@ export default function Home({
           </Link>
           <div className="hero-note">{c.heroNote}</div>
         </div>
-        <div className="hero-visual">
-          <div className="edition">
-            THE EVERYDAY COLLECTION <span>VOL. 01 / 2026</span>
-          </div>
-          <div className="hero-tee">
-            {featured ? (
-              featured.imageUrl ? (
-                <img src={featured.imageUrl} alt={featured.name} />
-              ) : (
-                <div className="empty">Image coming soon</div>
-              )
-            ) : (
-              <div className="empty">New favorites are on their way.</div>
-            )}
-          </div>
-          <div className="round-stamp">
-            WEAR IT YOUR WAY
-            <br />
-            <span>✳</span>
-            <br />
-            LIGHTMARE ORIGINALS
-          </div>
-          <span className="scribble">your off-duty uniform ↗</span>
-          <Link className="hero-caption" href={featured ? `/products/${featured.slug}` : '/shop'}>
-            <span>
-              {featured?.name || 'EXPLORE LIGHTMARE'}
-              <br />
-              <small>
-                {featured
-                  ? `${featured.color} / ${money(featured.price)}`
-                  : 'Discover the collection'}
-              </small>
-            </span>
-            <ArrowUpRight />
-          </Link>
-        </div>
+        <HeroCarousel
+          key={products
+            .slice(0, 5)
+            .map((p) => p.slug)
+            .join(',')}
+          products={products}
+        />
       </section>
       <div className="ticker">
         {content.ticker.map((text, i) => (

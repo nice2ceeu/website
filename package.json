@@ -10,11 +10,14 @@
     "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
     "db:products": "node --env-file=.env.local --import tsx scripts/setup-products.ts",
     "db:cms": "node --env-file=.env.local --import tsx scripts/setup-cms.ts",
+    "images:migrate": "node --env-file=.env.local --import tsx scripts/migrate-cloudinary.ts",
     "test": "tsx --test tests/*.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "admin:create": "node --env-file=.env.local scripts/admin-account.mjs create",
-    "admin:reset": "node --env-file=.env.local scripts/admin-account.mjs reset"
+    "admin:reset": "node --env-file=.env.local scripts/admin-account.mjs reset",
+    "addresses:update": "node scripts/update-addresses.mjs",
+    "postal:update": "node scripts/update-postal-codes.mjs"
   },
   "dependencies": {
     "jose": "^6.2.12",

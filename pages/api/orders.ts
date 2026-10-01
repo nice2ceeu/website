@@ -6,6 +6,7 @@ import { db, configured } from '@/lib/db';
 import { sameOrigin, rateLimit, clientKey } from '@/lib/api';
 import { sendOrderEmail } from '@/lib/email';
 import { getProducts } from '@/lib/products';
+import { resolveAddress } from '@/lib/locations';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -24,7 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({ error: 'The product catalog is temporarily unavailable. Please try again later.' });
   }
   try {
-    order = priceOrder(req.body, catalog);
+    const address = await resolveAddress(req.body);
+    order = priceOrder({ ...req.body, ...address }, catalog);
   } catch {
     return res
       .status(400)

@@ -6,6 +6,7 @@ import { useState, type FormEvent } from 'react';
 import type { GetServerSideProps } from 'next';
 import AdminLayout from '@/components/AdminLayout';
 import { sizes, money, type Product } from '@/lib/catalog';
+import { productSlug } from '@/lib/product-slug';
 
 const blank: Product = {
   slug: '',
@@ -34,12 +35,15 @@ export default function Products({
   published: number;
 }) {
   const router = useRouter();
+  const [autoSlug, setAutoSlug] = useState(true);
   const [editing, setEditing] = useState<Product | null>(null),
     [price, setPrice] = useState('690.00'),
     [message, setMessage] = useState(error),
     [busy, setBusy] = useState(false),
     [deleting, setDeleting] = useState<Product | null>(null);
   function edit(product: Product) {
+    setAutoSlug(!product.id);
+    setDeleting(null);
     setUploadMessage('');
     setEditing({ ...product });
     setPrice((product.price / 100).toFixed(2));
@@ -91,7 +95,11 @@ export default function Products({
       const response = await fetch(`/api/admin/products${editing.id ? `?id=${editing.id}` : ''}`, {
         method: editing.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editing, price: Math.round(Number(price) * 100) }),
+        body: JSON.stringify({
+          ...editing,
+          autoSlug: !editing.id && autoSlug,
+          price: Math.round(Number(price) * 100),
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
@@ -133,69 +141,75 @@ export default function Products({
             {paging.total} matching products · {published} published
           </p>
         </div>
-        <button className="button" disabled={busy} onClick={() => edit(blank)}>
-          Add product +
-        </button>
+        {!editing && (
+          <button className="button" disabled={busy} onClick={() => edit(blank)}>
+            Add product +
+          </button>
+        )}
       </div>
       {message && (
         <p className="notice" role="status">
           {message}
         </p>
       )}
-      <div className="order-filters">
-        <QuerySearch label="Search products" placeholder="Search product name or URL slug…" />
-      </div>
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>PRODUCT</th>
-              <th>PRICE</th>
-              <th>SIZES</th>
-              <th>STATUS</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <strong>{p.name}</strong>
-                  <small className="date">/products/{p.slug}</small>
-                </td>
-                <td>{money(p.price)}</td>
-                <td>{p.availableSizes?.join(', ')}</td>
-                <td>
-                  <span className={`badge ${p.active ? 'paid' : ''}`}>
-                    {p.active ? 'Published' : 'Draft'}
-                  </span>
-                </td>
-                <td>
-                  <div className="product-actions">
-                    <button className="text-link" disabled={busy} onClick={() => edit(p)}>
-                      Edit
-                    </button>
-                    <button
-                      className="text-link"
-                      disabled={busy}
-                      onClick={() => {
-                        setDeleting(p);
-                        setMessage('');
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!visible.length && (
-          <p className="empty">No products found. Add a product to start your collection.</p>
-        )}
-      </div>
-      <Pagination paging={paging} />
+      {!editing && (
+        <>
+          <div className="order-filters">
+            <QuerySearch label="Search products" placeholder="Search product name or URL slug…" />
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>PRODUCT</th>
+                  <th>PRICE</th>
+                  <th>SIZES</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <strong>{p.name}</strong>
+                      <small className="date">/products/{p.slug}</small>
+                    </td>
+                    <td>{money(p.price)}</td>
+                    <td>{p.availableSizes?.join(', ')}</td>
+                    <td>
+                      <span className={`badge ${p.active ? 'paid' : ''}`}>
+                        {p.active ? 'Published' : 'Draft'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="product-actions">
+                        <button className="text-link" disabled={busy} onClick={() => edit(p)}>
+                          Edit
+                        </button>
+                        <button
+                          className="text-link"
+                          disabled={busy}
+                          onClick={() => {
+                            setDeleting(p);
+                            setMessage('');
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!visible.length && (
+              <p className="empty">No products found. Add a product to start your collection.</p>
+            )}
+          </div>
+          <Pagination paging={paging} />
+        </>
+      )}
       {deleting && (
         <section className="order-panel" role="alertdialog" aria-labelledby="delete-title">
           <h2 id="delete-title">Delete {deleting.name}?</h2>
@@ -229,7 +243,13 @@ export default function Products({
                   required
                   maxLength={100}
                   value={editing.name}
-                  onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                  onChange={(e) =>
+                    setEditing({
+                      ...editing,
+                      name: e.target.value,
+                      ...(!editing.id && autoSlug ? { slug: productSlug(e.target.value) } : {}),
+                    })
+                  }
                 />
               </label>
               <label>
@@ -240,8 +260,16 @@ export default function Products({
                   maxLength={100}
                   placeholder="my-new-tee"
                   value={editing.slug}
-                  onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                  onChange={(e) => {
+                    setAutoSlug(false);
+                    setEditing({ ...editing, slug: e.target.value });
+                  }}
                 />
+                <small>
+                  {editing.id
+                    ? 'Changing the name keeps this URL. Editing the slug changes shared links.'
+                    : 'Generated from the name. Duplicate URLs get a numbered suffix when saved. You can also enter a custom slug.'}
+                </small>
               </label>
               <label className="full">
                 Description

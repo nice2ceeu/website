@@ -1598,3 +1598,90 @@ select:focus {
 .pagination nav {
   flex-wrap: wrap;
 }
+
+.size-guide-dialog {
+  width: min(600px, calc(100vw - 32px));
+  max-height: 85dvh;
+  margin: auto;
+  padding: 28px;
+  border: 1px solid var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-y: auto;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  font-size: 14px;
+  box-shadow: 0 20px 70px #0003;
+}
+.size-guide-dialog::backdrop {
+  background: #0008;
+}
+.size-guide-dialog .section-heading {
+  margin-bottom: 20px;
+  gap: 16px;
+}
+.size-guide-dialog h2 {
+  margin: 0;
+  font-size: 30px;
+}
+.size-guide-dialog p {
+  line-height: 1.6;
+}
+.size-guide-dialog caption {
+  text-align: left;
+  padding-bottom: 12px;
+}
+.size-guide-dialog th,
+.size-guide-dialog td {
+  padding: 12px;
+}
+.size-guide-dialog small {
+  display: block;
+  line-height: 1.6;
+}
+
+.hero-visual .hero-tee {
+  animation: hero-reveal 450ms ease-out;
+}
+@keyframes hero-reveal {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 600px) {
+  .carousel-scribble {
+    bottom: 160px;
+    font-size: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual .hero-tee {
+    animation: none;
+  }
+}
+
+.cms-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+.cms-categories button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  padding: 11px 16px;
+  border-radius: 4px;
+}
+.cms-categories button[aria-pressed='true'] {
+  background: var(--wine);
+  color: white;
+  border-color: var(--wine);
+}
+.cms-section[hidden] {
+  display: none;
+}

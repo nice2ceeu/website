@@ -144,7 +144,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, query }) => 
     const { db } = await import('@/lib/db');
     const { getLanding } = await import('@/lib/cms');
     const [result, cms, [rows]] = await Promise.all([
-      productPage(query),
+      productPage(query, false, 12),
       getLanding(),
       db().query(
         'SELECT DISTINCT color FROM products WHERE active=TRUE AND deleted_at IS NULL ORDER BY color',
@@ -170,7 +170,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, query }) => 
     return {
       props: {
         products: [],
-        paging: pagination(0, 1),
+        paging: pagination(0, 1, 12),
         colors: [],
         content: defaultLanding,
         error: 'The collection is temporarily unavailable. Please try again later.',
