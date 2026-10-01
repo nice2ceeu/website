@@ -36,8 +36,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <ListOrdered size={18} /> Orders
           </Link>
-          <Link href="/">
-            View storefront <ArrowUpRight size={16} />
+          <Link href="/" className="admin-secondary-link">
+            <ArrowUpRight size={16} aria-hidden="true" /> View storefront
           </Link>
           <Link
             className={router.pathname === '/admin/products' ? 'active' : ''}
@@ -45,8 +45,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <ListOrdered size={18} /> Products
           </Link>
-          <Link href="/shop">
-            Browse products <ArrowUpRight size={16} />
+          <Link href="/shop" className="admin-secondary-link">
+            <ArrowUpRight size={16} aria-hidden="true" /> Browse products
           </Link>
           <Link
             className={router.pathname === '/admin/content' ? 'active' : ''}

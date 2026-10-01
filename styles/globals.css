@@ -1685,3 +1685,9 @@ select:focus {
 .cms-section[hidden] {
   display: none;
 }
+
+.admin aside nav a.admin-secondary-link {
+  padding-left: 32px;
+  font-size: 12px;
+  color: var(--muted);
+}
