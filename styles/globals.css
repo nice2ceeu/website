@@ -2309,9 +2309,11 @@ footer .footer-bottom {
   background: var(--cream);
 }
 .storefront .size-layout,
-.storefront .ordering,
 .storefront .shipping {
   background: var(--taupe);
+}
+.storefront .ordering {
+  background: var(--pink);
 }
 .storefront .bottom-cta {
   background: var(--pink);
@@ -2394,7 +2396,7 @@ footer .footer-bottom {
 
 /* Contact and configured social destinations. */
 .storefront .contact-section {
-  background: var(--taupe);
+  background: var(--pink);
   text-align: center;
 }
 .storefront .contact-section h2 {
@@ -2790,5 +2792,61 @@ footer .footer-bottom {
   .storefront .product-grid,
   .storefront .steps {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Match admin branding to the storefront wordmark. */
+.admin .wordmark,
+.login-page .wordmark {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+.admin-brand-logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.login-page .admin-brand-logo {
+  width: 220px;
+}
+.admin aside .admin-brand-logo {
+  width: 180px;
+}
+
+/* Larger announcement, using Neue Montreal when installed locally. */
+@font-face {
+  font-family: 'Neue Montreal';
+  src:
+    local('PP Neue Montreal Medium'), local('Neue Montreal Medium'), local('PP Neue Montreal'),
+    local('Neue Montreal');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+.storefront .announcement {
+  font-family: 'Neue Montreal', 'DM Sans', Arial, sans-serif;
+  background: var(--blue);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 1.4px;
+  padding: 10px 16px;
+}
+@media (max-width: 700px) {
+  .storefront .announcement {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+}
+
+/* Bring the shop breadcrumb closer to the header. */
+.storefront .section.shop-page {
+  padding-top: 24px;
+}
+@media (max-width: 700px) {
+  .storefront .section.shop-page {
+    padding-top: 16px;
   }
 }

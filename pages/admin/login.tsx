@@ -34,7 +34,13 @@ export default function Login() {
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <Link className="wordmark" href="/">
-        lightmare ph<span>®</span>
+        <img
+          className="admin-brand-logo"
+          src="/images/lightmare-logo-blue.png"
+          alt="Lightmare PH"
+          width={220}
+          height={104}
+        />
       </Link>
       <form className="login-card" onSubmit={login}>
         <div className="eyebrow">THE BACK OFFICE</div>

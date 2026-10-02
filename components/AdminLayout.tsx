@@ -30,7 +30,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </Head>
       <aside>
         <Link href="/admin" className="wordmark">
-          lightmare ph<span>®</span>
+          <img
+            className="admin-brand-logo"
+            src="/images/lightmare-logo-blue.png"
+            alt="Lightmare PH"
+            width={220}
+            height={104}
+          />
         </Link>
         <small>THE BACK OFFICE</small>
         <nav>
