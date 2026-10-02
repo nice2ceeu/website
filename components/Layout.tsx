@@ -86,7 +86,7 @@ export default function Layout({
           </button>
         </header>
         <main>{children}</main>
-        <footer>
+        <footer id="social-links">
           <div className="footer-top">
             <Link className="wordmark" href="/">
               <img

@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
-import SocialLinks from '@/components/SocialLinks';
 import { money, type Product } from '@/lib/catalog';
 import type { GetServerSideProps } from 'next';
 import { defaultLanding, type LandingContent } from '@/lib/landing-content';
@@ -223,14 +222,6 @@ export default function Home({
             </details>
           ))}
         </div>
-      </section>
-      <section className="social-section" id="social-links" aria-labelledby="social-title">
-        <div className="eyebrow">THE LIGHTMARE PH CLUB</div>
-        <h2 id="social-title">
-          {c.socialTitle} <em>{c.socialAccent}</em>
-        </h2>
-        <p>{c.socialBody}</p>
-        <SocialLinks content={content} />
       </section>
       <section className="bottom-cta">
         <span>✳</span>
