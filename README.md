@@ -1,4 +1,4 @@
-# Lightmare
+# Lightmare PH
 
 Next.js **Pages Router**, TypeScript, React, Aiven MySQL, and Brevo. Cream/burgundy graphic tee storefront inspired by the product-first presentation of https://inprintwetrust.co/ and https://sweetbabyjane.us/. Original branding, copy, and sample designs; no copied store assets.
 

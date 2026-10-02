@@ -7,7 +7,7 @@ import AddressFields from '@/components/AddressFields';
 import SizeGuide from '@/components/SizeGuide';
 import PaymentSelection from '@/components/PaymentSelection';
 import { Product, money, sizes, store } from '@/lib/catalog';
-import type { LandingContent } from '@/lib/landing-content';
+import { defaultLanding, type LandingContent } from '@/lib/landing-content';
 import type { PaymentSettings } from '@/lib/payment-settings';
 export default function ProductPage({
   product,
@@ -96,7 +96,7 @@ function ProductDetail({
             <p className="sample-note">Sample product · illustrative design mockup</p>
           </div>
           <div>
-            <div className="eyebrow">LIGHTMARE ORIGINAL / VOL. 01</div>
+            <div className="eyebrow">LIGHTMARE PH ORIGINAL / VOL. 01</div>
             <h1>{product.name}</h1>
             <div className="detail-price">{money(product.price)}</div>
             <p>
@@ -157,7 +157,7 @@ function ProductDetail({
                     <div className="payment-instructions">
                       <strong>Send your payment here</strong>
                       <p>{selectedPaymentDetails}</p>
-                      <small>Lightmare confirms payment manually.</small>
+                      <small>Lightmare PH confirms payment manually.</small>
                     </div>
                   )}
                   <p>
@@ -238,8 +238,8 @@ function ProductDetail({
                   <label className="checkbox">
                     <input required type="checkbox" name="consent" />{' '}
                     <span>
-                      I agree to share my contact and delivery details so Lightmare can process this
-                      order.
+                      I agree to share my contact and delivery details so Lightmare PH can process
+                      this order.
                     </span>
                   </label>
                   {error && (
@@ -267,7 +267,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params, res }) =>
   if (!product) return { notFound: true };
   const { getLanding } = await import('@/lib/cms');
   const { getPaymentSettings } = await import('@/lib/payment-settings');
-  const [landing, payment] = await Promise.all([getLanding(), getPaymentSettings()]);
+  const [content, payment] = await Promise.all([
+    getLanding()
+      .then((landing) => landing.content)
+      .catch(() => defaultLanding),
+    getPaymentSettings(),
+  ]);
   const { revision: _revision, ...paymentSettings } = payment;
-  return { props: { product, content: landing.content, paymentSettings } };
+  return { props: { product, content, paymentSettings } };
 };

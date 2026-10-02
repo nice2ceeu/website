@@ -33,7 +33,7 @@ const samples = [
     availableSizes: [...sizes],
     active: true,
     design: 'off duty',
-    sub: 'LIGHTMARE',
+    sub: 'LIGHTMARE PH',
     tag: 'SAMPLE COLLECTION',
   }),
 );

@@ -47,7 +47,7 @@ export default function Orders({
   }
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / ORDERS</div>
+      <div className="eyebrow">LIGHTMARE PH / ORDERS</div>
       <h1>
         Every order. <em>A little joy.</em>
       </h1>

@@ -1,5 +1,5 @@
 export const store = {
-  name: 'LIGHTMARE',
+  name: 'LIGHTMARE PH',
   currency: 'PHP',
   shipping: 12000,
   country: 'Philippines',

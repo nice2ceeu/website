@@ -97,7 +97,7 @@ export default function Shop({
           {visible.map((product) => (
             <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}>
               <div className="product-image" style={{ background: product.bg }}>
-                <span className="product-number">LIGHTMARE ORIGINAL</span>
+                <span className="product-number">LIGHTMARE PH ORIGINAL</span>
                 {product.imageUrl ? (
                   <img src={product.imageUrl} alt={`${product.name} in ${product.color}`} />
                 ) : (
@@ -143,9 +143,11 @@ export const getServerSideProps: GetServerSideProps = async ({ res, query }) => 
     const { productPage } = await import('@/lib/list-data');
     const { db } = await import('@/lib/db');
     const { getLanding } = await import('@/lib/cms');
-    const [result, cms, [rows]] = await Promise.all([
+    const [result, cmsResult, [rows]] = await Promise.all([
       productPage(query, false, 12),
-      getLanding(),
+      getLanding()
+        .then((cms) => cms.content)
+        .catch(() => defaultLanding),
       db().query(
         'SELECT DISTINCT color FROM products WHERE active=TRUE AND deleted_at IS NULL ORDER BY color',
       ),
@@ -161,7 +163,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, query }) => 
       props: {
         ...result,
         colors: (rows as { color: string }[]).map((row) => row.color),
-        content: cms.content,
+        content: cmsResult,
         error: '',
       },
     };

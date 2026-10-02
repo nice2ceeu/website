@@ -10,6 +10,7 @@
     "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
     "db:products": "node --env-file=.env.local --import tsx scripts/setup-products.ts",
     "db:cms": "node --env-file=.env.local --import tsx scripts/setup-cms.ts",
+    "db:rebrand": "node --env-file=.env.local --import tsx scripts/rebrand-lightmare-ph.ts",
     "images:migrate": "node --env-file=.env.local --import tsx scripts/migrate-cloudinary.ts",
     "test": "tsx --test tests/*.test.ts",
     "format": "prettier --write .",

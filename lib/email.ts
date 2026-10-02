@@ -8,7 +8,7 @@ export async function sendOrderEmail(order: EmailOrder) {
       ? [
           {
             email: process.env.ORDER_NOTIFICATION_EMAIL,
-            name: 'Lightmare Admin',
+            name: 'Lightmare PH Admin',
             audience: 'admin' as const,
           },
         ]
@@ -25,7 +25,7 @@ export async function sendOrderEmail(order: EmailOrder) {
         },
         signal: AbortSignal.timeout(12000),
         body: JSON.stringify({
-          sender: { name: 'Lightmare', email: process.env.BREVO_SENDER_EMAIL },
+          sender: { name: 'Lightmare PH', email: process.env.BREVO_SENDER_EMAIL },
           to: [{ email: recipient.email, name: recipient.name }],
           ...orderEmail(order, recipient.audience),
         }),

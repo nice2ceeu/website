@@ -34,13 +34,7 @@ export default function Home({
           </Link>
           <div className="hero-note">{c.heroNote}</div>
         </div>
-        <HeroCarousel
-          key={products
-            .slice(0, 5)
-            .map((p) => p.slug)
-            .join(',')}
-          products={products}
-        />
+        <HeroCarousel slides={content.carouselSlides} />
       </section>
       <div className="ticker">
         {content.ticker.map((text, i) => (
@@ -112,7 +106,7 @@ export default function Home({
             <em>{c.storyArtAccent}</em>
           </span>
           <div>✳</div>
-          <small>THE LIGHTMARE STATE OF MIND</small>
+          <small>THE LIGHTMARE PH STATE OF MIND</small>
         </div>
         <div className="story-copy">
           <div className="eyebrow">{c.storyEyebrow}</div>
@@ -230,7 +224,7 @@ export default function Home({
         </div>
       </section>
       <section className="social-section">
-        <div className="eyebrow">THE LIGHTMARE CLUB</div>
+        <div className="eyebrow">THE LIGHTMARE PH CLUB</div>
         <h2>
           {c.socialTitle} <em>{c.socialAccent}</em>
         </h2>
@@ -265,19 +259,20 @@ export default function Home({
 }
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   res.setHeader('Cache-Control', 'no-store');
-  try {
-    const { getProducts } = await import('@/lib/products');
-    const { getLanding } = await import('@/lib/cms');
-    const [products, cms] = await Promise.all([getProducts(), getLanding()]);
-    return { props: { products, content: cms.content, error: '' } };
-  } catch {
+  const { getProducts } = await import('@/lib/products');
+  const { getLanding } = await import('@/lib/cms');
+  const [productResult, cmsResult] = await Promise.allSettled([getProducts(), getLanding()]);
+  if (productResult.status === 'rejected') {
     res.statusCode = 503;
-    return {
-      props: {
-        products: [],
-        content: defaultLanding,
-        error: 'The collection is temporarily unavailable. Please try again later.',
-      },
-    };
   }
+  return {
+    props: {
+      products: productResult.status === 'fulfilled' ? productResult.value : [],
+      content: cmsResult.status === 'fulfilled' ? cmsResult.value.content : defaultLanding,
+      error:
+        productResult.status === 'rejected'
+          ? 'The collection is temporarily unavailable. Please try again later.'
+          : '',
+    },
+  };
 };

@@ -20,7 +20,7 @@ export default function Dashboard({
 }) {
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / OVERVIEW</div>
+      <div className="eyebrow">LIGHTMARE PH / OVERVIEW</div>
       <h1>
         A good day to <em>make things happen.</em>
       </h1>

@@ -13,7 +13,7 @@ async function setup() {
         p.caption,
         p.price,
         p.color,
-        p.slug === 'off-duty' ? '/images/off-duty.png' : '',
+        p.imageUrl,
         JSON.stringify(sizes),
         p.design,
         p.ink,

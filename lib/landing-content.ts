@@ -12,7 +12,7 @@ export const contentFields = [
     'metaDescription',
     'SEO',
     'Search description',
-    'A little personality. A lot of everyday. Discover original graphic tees by Lightmare.',
+    'A little personality. A lot of everyday. Discover original graphic tees by Lightmare PH.',
   ],
   ['heroEyebrow', 'Hero', 'Eyebrow', 'INDEPENDENT SPIRIT. EVERYDAY TEES.'],
   ['heroTitle', 'Hero', 'Heading line 1', 'Good tees.'],
@@ -132,6 +132,13 @@ const socialUrl = z
       })(),
     'Use an HTTPS URL or leave blank.',
   );
+const carouselImageUrl = z
+  .url()
+  .max(1000)
+  .refine(
+    (value) => value.startsWith('https://res.cloudinary.com/'),
+    'Carousel images must be hosted on Cloudinary.',
+  );
 export const landingSchema = z.object({
   copy: z.object(
     Object.fromEntries(contentFields.map(([key]) => [key, text])) as Record<
@@ -146,6 +153,14 @@ export const landingSchema = z.object({
     .string()
     .max(100)
     .regex(/^$|^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  carouselSlides: z
+    .array(
+      z.object({
+        imageUrl: carouselImageUrl,
+        alt: z.string().trim().min(1).max(160),
+      }),
+    )
+    .length(4),
   ticker: z.array(z.string().trim().min(1).max(100)).length(4),
   steps: z.array(z.object({ title: z.string().trim().min(1).max(100), body: text })).length(4),
   faqs: z
@@ -173,6 +188,28 @@ export const defaultLanding: LandingContent = {
   instagram: '',
   tiktok: '',
   featuredSlug: '',
+  carouselSlides: [
+    {
+      imageUrl:
+        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900887/lightmare/carousel/lightmare-ph-celestial-2026.webp',
+      alt: 'Model wearing a cream celestial graphic tee',
+    },
+    {
+      imageUrl:
+        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900888/lightmare/carousel/lightmare-ph-dusty-rose-2026.webp',
+      alt: 'Model wearing a dusty rose floral graphic tee',
+    },
+    {
+      imageUrl:
+        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900889/lightmare/carousel/lightmare-ph-friends-2026.webp',
+      alt: 'Friends wearing butter yellow and powder blue graphic tees',
+    },
+    {
+      imageUrl:
+        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900890/lightmare/carousel/lightmare-ph-starburst-2026.webp',
+      alt: 'Model wearing a burgundy starburst graphic tee',
+    },
+  ],
   ticker: [
     'NOT MADE TO BLEND IN',
     'GOOD TEES, GOOD DAYS',

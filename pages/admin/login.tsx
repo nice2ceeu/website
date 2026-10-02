@@ -30,11 +30,11 @@ export default function Login() {
   return (
     <div className="login-page">
       <Head>
-        <title>Admin sign in — Lightmare</title>
+        <title>Admin sign in — Lightmare PH</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <Link className="wordmark" href="/">
-        lightmare<span>®</span>
+        lightmare ph<span>®</span>
       </Link>
       <form className="login-card" onSubmit={login}>
         <div className="eyebrow">THE BACK OFFICE</div>
@@ -65,7 +65,7 @@ export default function Login() {
           {busy ? 'Signing in…' : 'Sign in →'}
         </button>
       </form>
-      <Link href="/">← Back to Lightmare</Link>
+      <Link href="/">← Back to Lightmare PH</Link>
     </div>
   );
 }

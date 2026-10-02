@@ -131,7 +131,7 @@ export default function Products({
   const visible = products;
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / PRODUCTS</div>
+      <div className="eyebrow">LIGHTMARE PH / PRODUCTS</div>
       <div className="section-heading">
         <div>
           <h1>

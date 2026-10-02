@@ -40,21 +40,21 @@ export default function Layout({
   return (
     <>
       <Head>
-        <title>{`${title} — LIGHTMARE`}</title>
+        <title>{`${title} — LIGHTMARE PH`}</title>
         <meta name="description" content={content.copy.metaDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className="announcement">{content.copy.announcement}</div>
       <header className="header">
         <Link className="wordmark" href="/">
-          lightmare<span>®</span>
+          lightmare ph<span>®</span>
         </Link>
         <nav className={open ? 'nav open' : 'nav'} aria-label="Main navigation">
           <Link href="/shop" onClick={() => setOpen(false)}>
             Shop tees
           </Link>
-          <Link href="/#our-story" onClick={() => setOpen(false)}>
-            Our story
+          <Link href="/#how-to-order" onClick={() => setOpen(false)}>
+            How to order
           </Link>
           <Link href="/#size-guide" onClick={() => setOpen(false)}>
             Size guide
@@ -81,7 +81,7 @@ export default function Layout({
       <footer>
         <div className="footer-top">
           <Link className="wordmark" href="/">
-            lightmare<span>®</span>
+            lightmare ph<span>®</span>
           </Link>
           <p>{content.copy.footerTagline}</p>
           <div>
@@ -99,7 +99,7 @@ export default function Layout({
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} LIGHTMARE. A little out of line.</span>
+          <span>© {new Date().getFullYear()} LIGHTMARE PH. A little out of line.</span>
           <span>{content.copy.footerNote}</span>
         </div>
       </footer>

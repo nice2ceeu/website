@@ -6,6 +6,12 @@ import { contentFields, defaultLanding, type LandingContent } from '@/lib/landin
 
 const categories = ['Page content', 'Shopping help', 'Contact & socials', 'Settings'] as const;
 type Category = (typeof categories)[number];
+const editableContentFields = contentFields.filter(
+  ([key, group]) =>
+    !['Hero', 'Our story', 'Socials'].includes(group) &&
+    (group !== 'Shipping & care' ||
+      ['shippingTitle', 'shippingAreas', 'shippingEstimate'].includes(key)),
+);
 function categoryFor(group: string): Category {
   if (['Size guide', 'How to order', 'Shipping & care', 'FAQs'].includes(group))
     return 'Shopping help';
@@ -29,7 +35,41 @@ export default function ContentEditor({
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(error);
   const [category, setCategory] = useState<Category>('Page content');
+  const [uploadingSlide, setUploadingSlide] = useState<number | null>(null);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  async function uploadCarouselImage(index: number, file: File | undefined) {
+    if (!file) return;
+    setMessage('');
+    if (file.size > 10 * 1024 * 1024) {
+      setMessage('Maximum upload size is 10 MB.');
+      return;
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setMessage('Choose a JPEG, PNG, or WebP image.');
+      return;
+    }
+    setUploadingSlide(index);
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Upload failed.');
+      setDraft((current) => ({
+        ...current,
+        carouselSlides: current.carouselSlides.map((slide, slideIndex) =>
+          slideIndex === index ? { ...slide, imageUrl: result.url } : slide,
+        ),
+      }));
+      setMessage('Image uploaded. Publish changes to show it on the storefront.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Image upload failed.');
+    } finally {
+      setUploadingSlide(null);
+    }
+  }
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -53,11 +93,9 @@ export default function ContentEditor({
   }
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / LANDING PAGE CMS</div>
-      <h1>
-        Your story. <em>Your words.</em>
-      </h1>
-      <p>Choose a category to edit. Publish when you are ready.</p>
+      <div className="eyebrow">LIGHTMARE PH / LANDING PAGE CMS</div>
+      <h1>Landing page content</h1>
+      <p>Only content currently displayed on the storefront is available here.</p>
       <Link className="text-link" href="/" target="_blank" rel="noreferrer">
         View published landing page ↗
       </Link>
@@ -88,12 +126,15 @@ export default function ContentEditor({
             <button
               className="text-link"
               type="button"
-              disabled={busy || !dirty}
+              disabled={busy || uploadingSlide !== null || !dirty}
               onClick={() => setDraft(saved)}
             >
               Discard changes
             </button>
-            <button className="button" disabled={busy || !dirty || revision < 1}>
+            <button
+              className="button"
+              disabled={busy || uploadingSlide !== null || !dirty || revision < 1}
+            >
               {busy ? 'Publishing…' : 'Publish changes'}
             </button>
           </div>
@@ -110,8 +151,57 @@ export default function ContentEditor({
             </button>
           ))}
         </nav>
-        <fieldset disabled={busy || revision < 1} className="cms-fields">
-          {[...new Set(contentFields.map(([, group]) => group))].map((group) => (
+        <fieldset disabled={busy || uploadingSlide !== null || revision < 1} className="cms-fields">
+          <details
+            className="cms-section"
+            data-category="Page content"
+            hidden={category !== 'Page content'}
+            open
+          >
+            <summary>Hero carousel</summary>
+            <p className="form-note">
+              Four slides repeat automatically. Upload a JPEG, PNG, or WebP image up to 10 MB.
+            </p>
+            <div className="cms-carousel-grid">
+              {draft.carouselSlides.map((slide, index) => (
+                <div className="cms-carousel-item" key={index}>
+                  <img src={slide.imageUrl} alt={slide.alt} />
+                  <strong>Slide {index + 1}</strong>
+                  <label>
+                    Replacement image
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={uploadingSlide !== null}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.target.value = '';
+                        void uploadCarouselImage(index, file);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    Image description
+                    <input
+                      required
+                      maxLength={160}
+                      value={slide.alt}
+                      onChange={(event) =>
+                        setDraft({
+                          ...draft,
+                          carouselSlides: draft.carouselSlides.map((old, slideIndex) =>
+                            slideIndex === index ? { ...old, alt: event.target.value } : old,
+                          ),
+                        })
+                      }
+                    />
+                  </label>
+                  {uploadingSlide === index && <small>Uploading and compressing…</small>}
+                </div>
+              ))}
+            </div>
+          </details>
+          {[...new Set(editableContentFields.map(([, group]) => group))].map((group) => (
             <details
               className="cms-section"
               key={group}
@@ -120,7 +210,7 @@ export default function ContentEditor({
             >
               <summary>{group}</summary>
               <div className="form-grid">
-                {contentFields
+                {editableContentFields
                   .filter(([, g]) => g === group)
                   .map(([key, , label]) => (
                     <label className="full" key={key}>
@@ -174,11 +264,7 @@ export default function ContentEditor({
               These are public links. Brevo sender and admin notification settings are separate.
             </p>
           </details>
-          <details
-            className="cms-section"
-            data-category="Page content"
-            hidden={category !== 'Page content'}
-          >
+          <details className="cms-section" data-category="Page content" hidden>
             <summary>Scrolling messages</summary>
             {draft.ticker.map((value, i) => (
               <label key={i}>

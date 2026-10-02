@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import { money, type Product } from '@/lib/catalog';
-export default function HeroCarousel({ products }: { products: Product[] }) {
-  const slides = products.slice(0, 5);
+import type { LandingContent } from '@/lib/landing-content';
+
+export default function HeroCarousel({ slides }: { slides: LandingContent['carouselSlides'] }) {
   const [index, setIndex] = useState(0);
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -24,7 +24,7 @@ export default function HeroCarousel({ products }: { products: Product[] }) {
     }, 3000);
     return () => window.clearInterval(timer);
   }, [reduced, hover, focused, slides.length]);
-  const featured = slides[index % (slides.length || 1)];
+  const featured = slides[index % slides.length];
   return (
     <div
       className="hero-visual"
@@ -41,32 +41,22 @@ export default function HeroCarousel({ products }: { products: Product[] }) {
       <div className="edition">
         THE EVERYDAY COLLECTION <span>VOL. 01 / 2026</span>
       </div>
-      <div className="hero-tee" key={featured?.slug}>
-        {featured ? (
-          featured.imageUrl ? (
-            <img src={featured.imageUrl} alt={featured.name} />
-          ) : (
-            <div className="empty">Image coming soon</div>
-          )
-        ) : (
-          <div className="empty">New favorites are on their way.</div>
-        )}
+      <div className="hero-tee" key={featured.imageUrl}>
+        <img src={featured.imageUrl} alt={featured.alt} />
       </div>
       <div className="round-stamp">
         WEAR IT YOUR WAY
         <br />
         <span>✳</span>
         <br />
-        LIGHTMARE ORIGINALS
+        LIGHTMARE PH ORIGINALS
       </div>
       <span className="scribble carousel-scribble">your off-duty uniform ↗</span>
-      <Link className="hero-caption" href={featured ? `/products/${featured.slug}` : '/shop'}>
+      <Link className="hero-caption" href="/shop">
         <span>
-          {featured?.name || 'EXPLORE LIGHTMARE'}
+          LIGHTMARE PH
           <br />
-          <small>
-            {featured ? `${featured.color} / ${money(featured.price)}` : 'Discover the collection'}
-          </small>
+          <small>Discover the collection</small>
         </span>
         <ArrowUpRight />
       </Link>

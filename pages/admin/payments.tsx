@@ -41,11 +41,11 @@ export default function Payments({
   }
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / PAYMENT SETTINGS</div>
+      <div className="eyebrow">LIGHTMARE PH / PAYMENT SETTINGS</div>
       <h1>Payment instructions</h1>
       <p>
-        These are instructions only. Lightmare does not collect or verify payments through a payment
-        gateway.
+        These are instructions only. Lightmare PH does not collect or verify payments through a
+        payment gateway.
       </p>
       <form onSubmit={publish} className="payment-settings-form">
         <section className="order-panel">
@@ -62,7 +62,9 @@ export default function Payments({
             <textarea
               rows={5}
               maxLength={1000}
-              placeholder={'Send payment to:\nAccount name: Lightmare\nGCash number: 09•• ••• ••••'}
+              placeholder={
+                'Send payment to:\nAccount name: Lightmare PH\nGCash number: 09•• ••• ••••'
+              }
               value={settings.gcashDetails}
               onChange={(event) => setSettings({ ...settings, gcashDetails: event.target.value })}
             />
@@ -83,7 +85,7 @@ export default function Payments({
               rows={6}
               maxLength={1000}
               placeholder={
-                'Send payment to:\nBank: Example Bank\nAccount name: Lightmare\nAccount number: ••••••••'
+                'Send payment to:\nBank: Example Bank\nAccount name: Lightmare PH\nAccount number: ••••••••'
               }
               value={settings.bankDetails}
               onChange={(event) => setSettings({ ...settings, bankDetails: event.target.value })}

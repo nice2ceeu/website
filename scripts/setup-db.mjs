@@ -35,7 +35,7 @@ try {
     'INSERT IGNORE INTO payment_settings (id,gcash_details,bank_details) VALUES (1,?,?)',
     ['', ''],
   );
-  console.log('Lightmare orders and admins tables are ready. No dummy data was inserted.');
+  console.log('Lightmare PH orders and admins tables are ready. No dummy data was inserted.');
 } finally {
   await connection.end();
 }

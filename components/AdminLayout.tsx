@@ -25,12 +25,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="admin">
       <Head>
-        <title>Lightmare — Admin</title>
+        <title>Lightmare PH — Admin</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <aside>
         <Link href="/admin" className="wordmark">
-          lightmare<span>®</span>
+          lightmare ph<span>®</span>
         </Link>
         <small>THE BACK OFFICE</small>
         <nav>

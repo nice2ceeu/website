@@ -30,7 +30,7 @@ export default function Settings() {
   }
   return (
     <AdminLayout>
-      <div className="eyebrow">LIGHTMARE / SETTINGS</div>
+      <div className="eyebrow">LIGHTMARE PH / SETTINGS</div>
       <h1>Admin settings</h1>
       <section className="order-panel admin-settings-panel">
         <h2>Change password</h2>
