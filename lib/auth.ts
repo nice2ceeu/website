@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { scryptSync, timingSafeEqual } from 'node:crypto';
+import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { RowDataPacket } from 'mysql2';
 import { db } from './db';
@@ -19,7 +19,7 @@ export async function makeSession(adminId: number, sessionVersion: number) {
     .setExpirationTime('8h')
     .sign(secret());
 }
-export async function isAdmin(req: IncomingMessage) {
+export async function adminSession(req: IncomingMessage) {
   try {
     const token = req.headers.cookie
       ?.split('; ')
@@ -36,10 +36,14 @@ export async function isAdmin(req: IncomingMessage) {
       'SELECT session_version FROM admins WHERE id = ? AND active = TRUE',
       [payload.sub],
     );
-    return rows.length === 1 && rows[0].session_version === payload.sessionVersion;
+    if (rows.length !== 1 || rows[0].session_version !== payload.sessionVersion) return null;
+    return { id: Number(payload.sub), sessionVersion: Number(payload.sessionVersion) };
   } catch {
-    return false;
+    return null;
   }
+}
+export async function isAdmin(req: IncomingMessage) {
+  return Boolean(await adminSession(req));
 }
 export function checkPassword(password: string, storedHash: string) {
   const [salt, hash] = storedHash.split(':');
@@ -47,6 +51,10 @@ export function checkPassword(password: string, storedHash: string) {
   const expected = Buffer.from(hash, 'hex');
   const actual = scryptSync(password, salt, 64);
   return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+export function hashPassword(password: string) {
+  const salt = randomBytes(16).toString('hex');
+  return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
 }
 export function sessionCookie(value: string, maxAge = 28800) {
   return `${cookieName}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`;

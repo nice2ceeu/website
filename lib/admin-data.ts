@@ -12,6 +12,8 @@ export type Order = {
   city: string;
   postal_code: string;
   notes: string;
+  payment_method: 'gcash' | 'bank' | 'cod';
+  payment_details: string;
   status: string;
   email_status: string;
   created_at: string;

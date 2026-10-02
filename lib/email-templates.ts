@@ -16,6 +16,8 @@ export type EmailOrder = {
   total: number;
   createdAt?: string;
   status?: string;
+  paymentMethod?: 'gcash' | 'bank' | 'cod';
+  paymentDetails?: string;
 };
 
 export function escapeHtml(value: string) {
@@ -34,7 +36,16 @@ export function orderEmail(order: EmailOrder, audience: 'customer' | 'admin') {
   const status = order.status || 'pending';
   const paid = ['paid', 'processing', 'shipped'].includes(status);
   const cancelled = status === 'cancelled';
-  const payment = cancelled ? 'Order cancelled' : paid ? 'Payment confirmed' : 'Payment pending';
+  const method = order.paymentMethod || 'cod';
+  const methodLabel =
+    method === 'gcash' ? 'GCash' : method === 'bank' ? 'Bank transfer' : 'Cash on delivery';
+  const payment = cancelled
+    ? 'Order cancelled'
+    : paid
+      ? 'Payment confirmed'
+      : method === 'cod'
+        ? 'Payment due on delivery'
+        : 'Payment pending';
   const date = new Intl.DateTimeFormat('en-PH', {
     dateStyle: 'medium',
     timeZone: 'Asia/Manila',
@@ -46,8 +57,11 @@ export function orderEmail(order: EmailOrder, audience: 'customer' | 'admin') {
       ? 'Your payment has been recorded by our team. Keep this invoice for your reference.'
       : admin
         ? 'Verify payment separately before marking this order as paid. Review the delivery details before dispatch.'
-        : 'Your order request is saved. Our team will contact you with payment instructions. Payment has not been collected by this website.';
+        : method === 'cod'
+          ? 'Your order request is saved. Pay the courier when your order is delivered.'
+          : 'Your order request is saved. Follow the payment instructions below. Payment confirmation is handled manually.';
   const address = `${order.address}\n${order.city}, ${order.postalCode}\nPhilippines`;
+  const paymentHtml = `<tr><td style="padding:0 28px 24px;"><h2 style="font-size:11px;letter-spacing:1px;">PAYMENT METHOD</h2><p style="font-size:13px;line-height:1.8;"><strong>${e(methodLabel)}</strong>${order.paymentDetails ? `<br>${e(order.paymentDetails).replace(/\n/g, '<br>')}` : '<br>Pay when your order is delivered.'}</p></td></tr>`;
   const textContent = `LIGHTMARE\n${title}\n${order.reference} · ${date}\n${payment}\nOrder status: ${status}\n\nCustomer: ${order.name}\nEmail: ${order.email}\nPhone: ${order.phone}\nShip to:\n${address}\n\n${order.productName}\nSize: ${order.size} / Color: ${order.color}\nUnit price: ${currency(order.unitPrice)}\nQuantity: ${order.quantity}\nSubtotal: ${currency(order.unitPrice * order.quantity)}\nShipping: ${currency(order.shipping)}\nOrder total: ${currency(order.total)}\n${!paid && !cancelled ? `Amount due: ${currency(order.total)}\n` : ''}\nNotes: ${order.notes || 'None'}\n\n${next}\n\nOrder invoice for reference; not an official tax invoice or proof of payment.`;
   const htmlContent = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — ${e(order.reference)}</title></head>
 <body style="margin:0;padding:0;background:#eee9e1;color:#382d2c;font-family:Arial,Helvetica,sans-serif;">
@@ -61,12 +75,17 @@ export function orderEmail(order: EmailOrder, audience: 'customer' | 'admin') {
 <tr><td style="padding:0 20px;"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f1ece3;"><th scope="col" style="${cell}">ITEM</th><th scope="col" style="${cell}text-align:center;">QTY</th><th scope="col" style="${cell}text-align:right;">AMOUNT</th></tr></thead><tbody><tr><td style="${cell}line-height:1.8;"><strong>${e(order.productName)}</strong><br><span style="color:#756b62;">${e(order.size)} / ${e(order.color)}<br>${currency(order.unitPrice)} each</span></td><td style="${cell}text-align:center;">${order.quantity}</td><td style="${cell}text-align:right;white-space:nowrap;">${currency(order.unitPrice * order.quantity)}</td></tr></tbody></table></td></tr>
 <tr><td style="padding:16px 28px 24px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:13px;"><tr><td style="padding:7px 0;">Subtotal</td><td align="right">${currency(order.unitPrice * order.quantity)}</td></tr><tr><td style="padding:7px 0 18px;">Shipping</td><td align="right" style="padding-bottom:11px;">${currency(order.shipping)}</td></tr><tr><td style="border-top:2px solid #702c3c;padding-top:17px;font-weight:bold;">${paid || cancelled ? 'Order total' : 'Total amount due'}</td><td align="right" style="border-top:2px solid #702c3c;padding-top:17px;font-size:22px;font-weight:bold;color:#702c3c;">${currency(order.total)}</td></tr></table></td></tr>
 ${order.notes ? `<tr><td style="padding:0 28px 24px;"><h2 style="font-size:11px;letter-spacing:1px;">ORDER NOTES</h2><p style="font-size:13px;line-height:1.7;overflow-wrap:anywhere;">${e(order.notes).replace(/\n/g, '<br>')}</p></td></tr>` : ''}
+${paymentHtml}
 <tr><td style="padding:0 28px 28px;"><div style="background:#f2ede4;padding:18px;font-size:12px;line-height:1.8;"><strong>${admin ? `Order status: ${e(status)}` : 'What happens next?'}</strong><br>${next}</div></td></tr>
 <tr><td style="border-top:1px solid #e5ded3;padding:23px 28px;text-align:center;color:#84776a;font-size:10px;line-height:1.8;">Keep your order reference for any questions.<br>Order invoice for reference; not an official tax invoice or proof of payment.<br><span style="color:#702c3c;">LIGHTMARE · Wear what feels like you.</span></td></tr>
 </table></td></tr></table></body></html>`;
+  const textWithPayment = textContent.replace(
+    'Notes:',
+    `Payment method: ${methodLabel}\n${order.paymentDetails ? `Payment instructions:\n${order.paymentDetails}\n` : ''}Notes:`,
+  );
   return {
     subject: `${admin ? 'Order summary' : 'Your Lightmare invoice'} — ${order.reference}`,
     htmlContent,
-    textContent,
+    textContent: textWithPayment,
   };
 }

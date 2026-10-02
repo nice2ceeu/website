@@ -5,24 +5,50 @@ import { ArrowUpRight, CheckCircle, Minus, Plus } from 'lucide-react';
 import Layout from '@/components/Layout';
 import AddressFields from '@/components/AddressFields';
 import SizeGuide from '@/components/SizeGuide';
+import PaymentSelection from '@/components/PaymentSelection';
 import { Product, money, sizes, store } from '@/lib/catalog';
 import type { LandingContent } from '@/lib/landing-content';
+import type { PaymentSettings } from '@/lib/payment-settings';
 export default function ProductPage({
   product,
   content,
+  paymentSettings,
 }: {
   product: Product;
   content: LandingContent;
+  paymentSettings: PaymentSettings;
 }) {
-  return <ProductDetail key={product.slug} product={product} content={content} />;
+  return (
+    <ProductDetail
+      key={product.slug}
+      product={product}
+      content={content}
+      paymentSettings={paymentSettings}
+    />
+  );
 }
-function ProductDetail({ product, content }: { product: Product; content: LandingContent }) {
+function ProductDetail({
+  product,
+  content,
+  paymentSettings,
+}: {
+  product: Product;
+  content: LandingContent;
+  paymentSettings: PaymentSettings;
+}) {
   const [size, setSize] = useState(product.availableSizes?.[0] || 'M'),
     [quantity, setQuantity] = useState(1),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
+    [paymentMethod, setPaymentMethod] = useState<'gcash' | 'bank' | 'cod' | ''>(''),
     [result, setResult] = useState<{ reference: string; emailStatus: string } | null>(null);
   const key = useRef('');
+  const selectedPaymentDetails =
+    paymentMethod === 'gcash'
+      ? paymentSettings.gcashDetails
+      : paymentMethod === 'bank'
+        ? paymentSettings.bankDetails
+        : '';
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -127,11 +153,20 @@ function ProductDetail({ product, content }: { product: Product; content: Landin
                   <p>
                     Reference: <strong>{result.reference}</strong>
                   </p>
+                  {selectedPaymentDetails && (
+                    <div className="payment-instructions">
+                      <strong>Send your payment here</strong>
+                      <p>{selectedPaymentDetails}</p>
+                      <small>Lightmare confirms payment manually.</small>
+                    </div>
+                  )}
                   <p>
                     {result.emailStatus === 'sent'
                       ? 'Check your inbox for your receipt.'
                       : 'Your order is saved, but we could not confirm email delivery. Keep this reference and contact the store.'}{' '}
-                    Payment is pending. Our team will contact you with payment instructions.
+                    {paymentMethod === 'cod'
+                      ? ' Pay the courier when your order is delivered.'
+                      : ' Follow the payment instructions shown above and in your receipt. Confirmation is handled manually.'}
                   </p>
                   <Link className="text-link" href="/shop">
                     Back to the tees →
@@ -175,6 +210,11 @@ function ProductDetail({ product, content }: { product: Product; content: Landin
                       />
                     </label>
                     <AddressFields />
+                    <PaymentSelection
+                      settings={paymentSettings}
+                      value={paymentMethod}
+                      onChange={setPaymentMethod}
+                    />
                     <label className="full">
                       Order notes (optional)
                       <textarea name="notes" rows={2} maxLength={1000} style={{ resize: 'none' }} />
@@ -226,5 +266,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, res }) =>
   const product = await getProduct(String(params?.slug || ''));
   if (!product) return { notFound: true };
   const { getLanding } = await import('@/lib/cms');
-  return { props: { product, content: (await getLanding()).content } };
+  const { getPaymentSettings } = await import('@/lib/payment-settings');
+  const [landing, payment] = await Promise.all([getLanding(), getPaymentSettings()]);
+  const { revision: _revision, ...paymentSettings } = payment;
+  return { props: { product, content: landing.content, paymentSettings } };
 };

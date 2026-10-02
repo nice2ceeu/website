@@ -19,6 +19,8 @@ const order: EmailOrder = {
   shipping: 12000,
   total: 150000,
   createdAt: '2026-10-01T08:00:00Z',
+  paymentMethod: 'gcash',
+  paymentDetails: 'GCash name: Lightmare\nNumber: 09123456789',
 };
 test('invoice escapes user content and itemizes saved prices', () => {
   const email = orderEmail(order, 'customer');
@@ -31,9 +33,11 @@ test('invoice escapes user content and itemizes saved prices', () => {
     'PHP 1,500.00',
     'PAYMENT PENDING',
     'DELIVER TO',
+    'GCash name: Lightmare',
   ])
     assert.ok(email.htmlContent.includes(text));
   assert.ok(email.textContent.includes('Amount due: PHP 1,500.00'));
+  assert.ok(email.textContent.includes('Payment method: GCash'));
   assert.ok(orderEmail(order, 'admin').htmlContent.includes('CUSTOMER & DELIVERY'));
   for (const status of ['paid', 'shipped', 'cancelled'])
     assert.ok(

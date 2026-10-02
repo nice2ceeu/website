@@ -2,7 +2,14 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactNode, useState } from 'react';
-import { LayoutDashboard, ListOrdered, ArrowUpRight, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  ListOrdered,
+  ArrowUpRight,
+  LogOut,
+  Settings,
+  CreditCard,
+} from 'lucide-react';
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -53,6 +60,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             href="/admin/content"
           >
             <LayoutDashboard size={18} /> Landing Page
+          </Link>
+          <Link
+            className={router.pathname === '/admin/settings' ? 'active' : ''}
+            href="/admin/settings"
+          >
+            <Settings size={18} /> Settings
+          </Link>
+          <Link
+            className={router.pathname === '/admin/payments' ? 'active' : ''}
+            href="/admin/payments"
+          >
+            <CreditCard size={18} /> Payments
           </Link>
         </nav>
         <button onClick={logout}>

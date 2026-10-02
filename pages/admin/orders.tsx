@@ -150,6 +150,19 @@ export default function Orders({
                 {order.size} / {order.color} × {order.quantity}
               </p>
               <strong>{money(order.total)} including shipping</strong>
+              <p>
+                Payment:{' '}
+                <strong>
+                  {order.payment_method === 'gcash'
+                    ? 'GCash'
+                    : order.payment_method === 'bank'
+                      ? 'Bank transfer'
+                      : 'Cash on delivery'}
+                </strong>
+              </p>
+              {order.payment_details && (
+                <p className="cms-copy">Instructions at order time: {order.payment_details}</p>
+              )}
               <p>Notes: {order.notes || 'None'}</p>
             </div>
           </div>

@@ -17,6 +17,7 @@ const valid = {
   city: 'Manila',
   postalCode: '1000',
   notes: '',
+  paymentMethod: 'cod',
   consent: true,
   idempotencyKey: 'c74bf539-9671-4e20-b413-ca7cd8356073',
 };
@@ -36,6 +37,7 @@ test('reject invalid product, color, quantity, consent, and contact data', () =>
     { email: 'invalid' },
     { consent: false },
     { postalCode: 'ABC' },
+    { paymentMethod: 'crypto' },
   ])
     assert.throws(() => priceOrder({ ...valid, ...patch }, products));
 });

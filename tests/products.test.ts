@@ -45,6 +45,7 @@ test('orders use database catalog prices and reject hidden, deleted or unavailab
     city: 'Manila',
     postalCode: '1000',
     notes: '',
+    paymentMethod: 'cod' as const,
     consent: true,
     idempotencyKey: 'c74bf539-9671-4e20-b413-ca7cd8356073',
   };

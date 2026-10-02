@@ -20,6 +20,21 @@ try {
   await connection.query(fs.readFileSync(new URL('./product-schema.sql', import.meta.url), 'utf8'));
   await connection.query(fs.readFileSync(new URL('./cms-schema.sql', import.meta.url), 'utf8'));
   await connection.query(fs.readFileSync(new URL('./image-schema.sql', import.meta.url), 'utf8'));
+  await connection.query(fs.readFileSync(new URL('./payment-schema.sql', import.meta.url), 'utf8'));
+  for (const statement of [
+    "ALTER TABLE orders ADD COLUMN payment_method ENUM('gcash','bank','cod') NOT NULL DEFAULT 'cod' AFTER notes",
+    'ALTER TABLE orders ADD COLUMN payment_details TEXT NOT NULL AFTER payment_method',
+  ]) {
+    try {
+      await connection.query(statement);
+    } catch (error) {
+      if (error.code !== 'ER_DUP_FIELDNAME') throw error;
+    }
+  }
+  await connection.execute(
+    'INSERT IGNORE INTO payment_settings (id,gcash_details,bank_details) VALUES (1,?,?)',
+    ['', ''],
+  );
   console.log('Lightmare orders and admins tables are ready. No dummy data was inserted.');
 } finally {
   await connection.end();

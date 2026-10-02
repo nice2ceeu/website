@@ -31,7 +31,9 @@ Admin accounts live in the MySQL admins table. Passwords are stored as salted sc
 3. Run npm run admin:create in an interactive terminal. Enter your email and password; password entry is hidden and requires confirmation.
 4. Restart the server and visit /admin/login.
 
-Use npm run admin:reset to change an existing account's password. This increments its session version and invalidates all previous sessions. Setting active = FALSE in the admins table disables access immediately. Session validation checks the database on every protected request and fails closed if the database is unavailable. Existing environment-based sessions no longer work.
+Admins can change their own password under `/admin/settings` after confirming the current password. The change issues a fresh cookie for the current browser and invalidates other sessions. `npm run admin:reset` remains available for account recovery from an interactive terminal. Setting active = FALSE in the admins table disables access immediately. Session validation checks the database on every protected request and fails closed if the database is unavailable. Existing environment-based sessions no longer work.
+
+Payment methods and instructions are managed under `/admin/payments`. GCash and bank details appear immediately after the customer selects that method; COD shows no advance-payment destination. This is an instruction-only workflow with no payment gateway or automatic payment verification. Each order stores a snapshot of its selected method and instructions so later settings changes do not alter existing order records or resent emails. Run `npm run db:setup` after deployment to create the settings table and add the order columns.
 
 Keep SESSION_SECRET in environment configuration: it signs the eight-hour HTTP-only session cookies and is not an admin credential. Use a random value of at least 32 characters. Production cookies require HTTPS. Runtime access to admins only needs SELECT; the account-management command requires INSERT/UPDATE privileges.
 

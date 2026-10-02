@@ -18,6 +18,7 @@ export const orderSchema = z.object({
     .trim()
     .regex(/^\d{4}$/),
   notes: z.string().trim().max(1000).default(''),
+  paymentMethod: z.enum(['gcash', 'bank', 'cod']),
   consent: z.literal(true),
   idempotencyKey: z.uuid(),
 });

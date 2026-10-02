@@ -41,6 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         notes: o.notes,
         createdAt: new Date(o.created_at).toISOString(),
         status: o.status,
+        paymentMethod: o.payment_method,
+        paymentDetails: o.payment_details,
       });
       await db().execute('UPDATE orders SET email_status=? WHERE reference=?', ['sent', reference]);
       return res.json({ ok: true });

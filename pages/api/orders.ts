@@ -7,6 +7,7 @@ import { sameOrigin, rateLimit, clientKey } from '@/lib/api';
 import { sendOrderEmail } from '@/lib/email';
 import { getProducts } from '@/lib/products';
 import { resolveAddress } from '@/lib/locations';
+import { getPaymentSettings, paymentForOrder } from '@/lib/payment-settings';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -25,8 +26,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({ error: 'The product catalog is temporarily unavailable. Please try again later.' });
   }
   try {
-    const address = await resolveAddress(req.body);
-    order = priceOrder({ ...req.body, ...address }, catalog);
+    const [address, paymentSettings] = await Promise.all([
+      resolveAddress(req.body),
+      getPaymentSettings(),
+    ]);
+    const priced = priceOrder({ ...req.body, ...address }, catalog);
+    order = { ...priced, ...paymentForOrder(priced.paymentMethod, paymentSettings) };
   } catch {
     return res
       .status(400)
@@ -47,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .status(200)
         .json({ reference: existing[0].reference, emailStatus: existing[0].email_status });
     await db().execute(
-      'INSERT INTO orders (reference,idempotency_key,product_slug,product_name,size,color,quantity,unit_price,shipping,total,customer_name,email,phone,address,city,postal_code,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO orders (reference,idempotency_key,product_slug,product_name,size,color,quantity,unit_price,shipping,total,customer_name,email,phone,address,city,postal_code,notes,payment_method,payment_details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         reference,
         order.idempotencyKey,
@@ -66,6 +71,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         order.city,
         order.postalCode,
         order.notes,
+        order.paymentMethod,
+        order.paymentDetails,
       ],
     );
   } catch (e) {

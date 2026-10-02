@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS orders (
  city VARCHAR(100) NOT NULL,
  postal_code VARCHAR(10) NOT NULL,
  notes TEXT NOT NULL,
+ payment_method ENUM('gcash','bank','cod') NOT NULL DEFAULT 'cod',
+ payment_details TEXT NOT NULL,
  status ENUM('pending','paid','processing','shipped','cancelled') NOT NULL DEFAULT 'pending',
  email_status ENUM('pending','sent','failed') NOT NULL DEFAULT 'pending',
  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
