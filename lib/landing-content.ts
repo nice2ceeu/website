@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { sizes } from './catalog';
 
 export const contentFields = [
   [
@@ -167,16 +168,22 @@ export const landingSchema = z.object({
     .array(z.object({ question: z.string().trim().min(1).max(200), answer: text }))
     .min(1)
     .max(12),
-  measurements: z
-    .array(
-      z.object({
-        size: z.enum(['XS', 'S', 'M', 'L', 'XL']),
-        width: z.number().positive().max(200),
-        length: z.number().positive().max(200),
-      }),
-    )
-    .length(5)
-    .refine((rows) => new Set(rows.map((r) => r.size)).size === 5, 'Each size must appear once.'),
+  measurements: z.preprocess(
+    (value) => (Array.isArray(value) ? value.filter((row) => row?.size !== 'XS') : value),
+    z
+      .array(
+        z.object({
+          size: z.enum(sizes),
+          width: z.number().positive().max(200),
+          length: z.number().positive().max(200),
+        }),
+      )
+      .length(sizes.length)
+      .refine(
+        (rows) => new Set(rows.map((r) => r.size)).size === sizes.length,
+        'Each size must appear once.',
+      ),
+  ),
 });
 export type LandingContent = z.infer<typeof landingSchema>;
 export const defaultLanding: LandingContent = {
@@ -247,9 +254,9 @@ export const defaultLanding: LandingContent = {
         'Contact us if an item arrives damaged or incorrect. The final returns and size-exchange policy will be published before the store launches.',
     },
   ],
-  measurements: ['XS', 'S', 'M', 'L', 'XL'].map((size, i) => ({
-    size: size as 'XS' | 'S' | 'M' | 'L' | 'XL',
-    width: 46 + i * 3,
-    length: 64 + i * 3,
+  measurements: sizes.map((size, i) => ({
+    size,
+    width: 49 + i * 3,
+    length: 67 + i * 3,
   })),
 };

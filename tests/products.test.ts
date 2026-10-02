@@ -4,6 +4,8 @@ import { productSchema } from '../lib/product-validation';
 import { priceOrder } from '../lib/validation';
 import { sizes, type Product } from '../lib/catalog';
 import { products } from '../scripts/fixtures/products';
+import { fromRow } from '../lib/products';
+import type { RowDataPacket } from 'mysql2';
 const product: Product = {
   ...products[0],
   price: 82550,
@@ -11,12 +13,18 @@ const product: Product = {
   availableSizes: ['S', 'M'],
   active: true,
 };
+test('existing product records omit retired XS sizes', () => {
+  for (const storedSizes of [['XS', 'S', 'M'], JSON.stringify(['XS', 'S', 'M'])]) {
+    assert.deepEqual(fromRow({ sizes: storedSizes } as RowDataPacket).availableSizes, ['S', 'M']);
+  }
+});
 test('product input validates prices, sizes and image URLs', () => {
   assert.ok(productSchema.safeParse(product).success);
   for (const patch of [
     { price: -1 },
     { price: 1.5 },
     { availableSizes: [] },
+    { availableSizes: ['XS'] },
     { availableSizes: ['M', 'M'] },
     { slug: '../test' },
     { imageUrl: 'javascript:alert(1)' },
@@ -55,4 +63,7 @@ test('orders use database catalog prices and reject hidden, deleted or unavailab
   assert.throws(() => priceOrder(input, []));
   assert.throws(() => priceOrder(input, [{ ...product, active: false }]));
   assert.throws(() => priceOrder({ ...input, size: 'XL' }, [product]));
+  assert.throws(() =>
+    priceOrder({ ...input, size: 'XS' }, [{ ...product, availableSizes: ['XS', 'M'] }]),
+  );
 });

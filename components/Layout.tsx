@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SocialLinks from '@/components/SocialLinks';
 import Head from 'next/head';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { useEffect, useState, ReactNode } from 'react';
@@ -44,65 +45,67 @@ export default function Layout({
         <meta name="description" content={content.copy.metaDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div className="announcement">{content.copy.announcement}</div>
-      <header className="header">
-        <Link className="wordmark" href="/">
-          lightmare ph<span>®</span>
-        </Link>
-        <nav className={open ? 'nav open' : 'nav'} aria-label="Main navigation">
-          <Link href="/shop" onClick={() => setOpen(false)}>
-            Shop tees
-          </Link>
-          <Link href="/#how-to-order" onClick={() => setOpen(false)}>
-            How to order
-          </Link>
-          <Link href="/#size-guide" onClick={() => setOpen(false)}>
-            Size guide
-          </Link>
-          <Link href="/#faq" onClick={() => setOpen(false)}>
-            FAQs
-          </Link>
-        </nav>
-        <div className="storefront-account">
-          <Link className="header-shop" href={admin ? '/admin' : '/shop'}>
-            {admin ? 'Back to admin' : 'Find your tee'} <ArrowUpRight size={17} />
-          </Link>
-        </div>
-        <button
-          className="menu"
-          aria-label="Toggle navigation"
-          aria-expanded={open}
-          onClick={() => setOpen(!open)}
-        >
-          {open ? <X /> : <Menu />}
-        </button>
-      </header>
-      <main>{children}</main>
-      <footer>
-        <div className="footer-top">
+      <div className="storefront">
+        <div className="announcement">{content.copy.announcement}</div>
+        <header className="header">
           <Link className="wordmark" href="/">
-            lightmare ph<span>®</span>
+            <img
+              className="brand-logo"
+              src="/images/lightmare-logo-blue.png"
+              alt="Lightmare PH"
+              width={220}
+              height={92}
+            />
           </Link>
-          <p>{content.copy.footerTagline}</p>
-          <div>
-            {content.instagram ? (
-              <a href={content.instagram}>Instagram ↗</a>
-            ) : (
-              <span>Instagram · coming soon</span>
-            )}
-            {content.tiktok ? (
-              <a href={content.tiktok}>TikTok ↗</a>
-            ) : (
-              <span>TikTok · coming soon</span>
-            )}
-            <a href={`mailto:${content.contactEmail}`}>Say hello ↗</a>
+          <nav className={open ? 'nav open' : 'nav'} aria-label="Main navigation">
+            <Link href="/shop" onClick={() => setOpen(false)}>
+              Shop tees
+            </Link>
+            <Link href="/#how-to-order" onClick={() => setOpen(false)}>
+              How to order
+            </Link>
+            <Link href="/#size-guide" onClick={() => setOpen(false)}>
+              Size guide
+            </Link>
+            <Link href="/#faq" onClick={() => setOpen(false)}>
+              FAQs
+            </Link>
+          </nav>
+          <div className="storefront-account">
+            <Link className="header-shop" href={admin ? '/admin' : '/shop'}>
+              {admin ? 'Back to admin' : 'Find your tee'} <ArrowUpRight size={17} />
+            </Link>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} LIGHTMARE PH. A little out of line.</span>
-          <span>{content.copy.footerNote}</span>
-        </div>
-      </footer>
+          <button
+            className="menu"
+            aria-label="Toggle navigation"
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X /> : <Menu />}
+          </button>
+        </header>
+        <main>{children}</main>
+        <footer>
+          <div className="footer-top">
+            <Link className="wordmark" href="/">
+              <img
+                className="brand-logo"
+                src="/images/lightmare-logo-blue.png"
+                alt="Lightmare PH"
+                width={220}
+                height={92}
+              />
+            </Link>
+            <p>{content.copy.footerTagline}</p>
+            <SocialLinks content={content} />
+          </div>
+          <div className="footer-bottom">
+            <span>© {new Date().getFullYear()} LIGHTMARE PH. A little out of line.</span>
+            <span>{content.copy.footerNote}</span>
+          </div>
+        </footer>
+      </div>
     </>
   );
 }

@@ -35,7 +35,7 @@ export const productSchema = z.object({
   availableSizes: z
     .array(z.enum(sizes))
     .min(1)
-    .max(5)
+    .max(sizes.length)
     .refine((values) => new Set(values).size === values.length, 'Sizes must be unique.'),
   active: z.boolean(),
   design: z.enum(['off duty', 'cherry', 'wish', 'romanticize']),

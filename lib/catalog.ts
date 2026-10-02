@@ -7,7 +7,7 @@ export const store = {
   instagram: '',
   tiktok: '',
 };
-export const sizes = ['XS', 'S', 'M', 'L', 'XL'] as const;
+export const sizes = ['S', 'M', 'L', 'XL'] as const;
 export type Product = {
   slug: string;
   name: string;

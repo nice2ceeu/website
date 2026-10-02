@@ -112,7 +112,20 @@ export default function Shop({
                 <span>{money(product.price)}</span>
               </div>
               <div className="product-meta">
-                <span>{product.color}</span>
+                <span>
+                  <i
+                    aria-hidden="true"
+                    style={{
+                      background:
+                        product.color === 'Blush'
+                          ? '#dfb4b2'
+                          : product.color === 'Butter'
+                            ? '#ebdba6'
+                            : '#ede8dd',
+                    }}
+                  />
+                  {product.color}
+                </span>
                 <span>{product.availableSizes?.join(' / ')}</span>
               </div>
             </Link>

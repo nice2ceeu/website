@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, Package, Heart, Sun } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
-import HeroCarousel from '@/components/HeroCarousel';
-import { money, store, type Product } from '@/lib/catalog';
+import SocialLinks from '@/components/SocialLinks';
+import { money, type Product } from '@/lib/catalog';
 import type { GetServerSideProps } from 'next';
 import { defaultLanding, type LandingContent } from '@/lib/landing-content';
 export default function Home({
@@ -34,7 +34,23 @@ export default function Home({
           </Link>
           <div className="hero-note">{c.heroNote}</div>
         </div>
-        <HeroCarousel slides={content.carouselSlides} />
+        <div className="hero-visual">
+          <div className="hero-tee">
+            <img
+              src="/images/lightmare-sky-stars.webp"
+              alt="Dreamy blue sky with cream clouds and scattered pink and white stars"
+              fetchPriority="high"
+            />
+          </div>
+          <Link className="hero-caption" href="/shop">
+            <span>
+              LIGHTMARE PH
+              <br />
+              <small>Discover the collection</small>
+            </span>
+            <ArrowUpRight aria-hidden="true" />
+          </Link>
+        </div>
       </section>
       <div className="ticker">
         {content.ticker.map((text, i) => (
@@ -178,28 +194,13 @@ export default function Home({
           ))}
         </div>
       </section>
-      <section className="shipping section" id="shipping">
-        <div>
-          <Package />
-          <h3>{c.shippingTitle}</h3>
-          <p>
-            {c.shippingAreas}
-            <br />
-            Flat-rate shipping: {money(store.shipping)} per order.
-            <br />
-            {c.shippingEstimate}
-          </p>
-        </div>
-        <div>
-          <Heart />
-          <h3>{c.careTitle}</h3>
-          <p className="cms-copy">{c.careBody}</p>
-        </div>
-        <div>
-          <Sun />
-          <h3>{c.everydayTitle}</h3>
-          <p className="cms-copy">{c.everydayBody}</p>
-        </div>
+      <section className="contact-section section" id="contact" aria-labelledby="contact-title">
+        <Mail size={24} aria-hidden="true" />
+        <h2 id="contact-title">HOW CAN I CONTACT YOU</h2>
+        <p>Send us a DM on Instagram, Tiktok or email.</p>
+        <a className="button" href="#social-links">
+          Here <ArrowUpRight size={18} aria-hidden="true" />
+        </a>
       </section>
       <section className="section faq" id="faq">
         <div>
@@ -223,24 +224,13 @@ export default function Home({
           ))}
         </div>
       </section>
-      <section className="social-section">
+      <section className="social-section" id="social-links" aria-labelledby="social-title">
         <div className="eyebrow">THE LIGHTMARE PH CLUB</div>
-        <h2>
+        <h2 id="social-title">
           {c.socialTitle} <em>{c.socialAccent}</em>
         </h2>
         <p>{c.socialBody}</p>
-        <div className="social-links">
-          {content.instagram ? (
-            <a href={content.instagram}>Instagram ↗</a>
-          ) : (
-            <span>Instagram · coming soon</span>
-          )}
-          {content.tiktok ? (
-            <a href={content.tiktok}>TikTok ↗</a>
-          ) : (
-            <span>TikTok · coming soon</span>
-          )}
-        </div>
+        <SocialLinks content={content} />
       </section>
       <section className="bottom-cta">
         <span>✳</span>

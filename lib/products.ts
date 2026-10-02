@@ -1,8 +1,9 @@
 import type { RowDataPacket } from 'mysql2';
 import { db, configured } from './db';
-import type { Product } from './catalog';
+import { sizes, type Product } from './catalog';
 
 export function fromRow(row: RowDataPacket): Product {
+  const storedSizes: string[] = typeof row.sizes === 'string' ? JSON.parse(row.sizes) : row.sizes;
   return {
     id: row.id,
     slug: row.slug,
@@ -11,7 +12,7 @@ export function fromRow(row: RowDataPacket): Product {
     price: row.price,
     color: row.color,
     imageUrl: row.image_url,
-    availableSizes: typeof row.sizes === 'string' ? JSON.parse(row.sizes) : row.sizes,
+    availableSizes: storedSizes.filter((size) => sizes.some((supported) => supported === size)),
     active: Boolean(row.active),
     design: row.design,
     ink: row.ink,

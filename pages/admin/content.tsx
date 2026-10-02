@@ -2,7 +2,12 @@ import { useState, type FormEvent } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import AdminLayout from '@/components/AdminLayout';
-import { contentFields, defaultLanding, type LandingContent } from '@/lib/landing-content';
+import {
+  contentFields,
+  defaultLanding,
+  landingSchema,
+  type LandingContent,
+} from '@/lib/landing-content';
 
 const categories = ['Page content', 'Shopping help', 'Contact & socials', 'Settings'] as const;
 type Category = (typeof categories)[number];
@@ -75,15 +80,17 @@ export default function ContentEditor({
     setBusy(true);
     setMessage('');
     try {
+      const publishedContent = landingSchema.parse(draft);
       const response = await fetch('/api/admin/content', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: draft, revision }),
+        body: JSON.stringify({ content: publishedContent, revision }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setRevision(result.revision);
-      setSaved(draft);
+      setDraft(publishedContent);
+      setSaved(publishedContent);
       setMessage('Published. Your landing page now shows the updated content.');
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Unable to publish content.');
