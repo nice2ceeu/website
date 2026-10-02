@@ -64,6 +64,7 @@ export default function ContentEditor({
       if (!response.ok) throw new Error(result.error || 'Upload failed.');
       setDraft((current) => ({
         ...current,
+        hero: index === -1 ? { ...current.hero, imageUrl: result.url } : current.hero,
         carouselSlides: current.carouselSlides.map((slide, slideIndex) =>
           slideIndex === index ? { ...slide, imageUrl: result.url } : slide,
         ),
@@ -159,6 +160,106 @@ export default function ContentEditor({
           ))}
         </nav>
         <fieldset disabled={busy || uploadingSlide !== null || revision < 1} className="cms-fields">
+          <details
+            className="cms-section"
+            data-category="Page content"
+            hidden={category !== 'Page content'}
+            open
+          >
+            <summary>Hero image, heading & button</summary>
+            <p className="form-note">
+              Text sits directly over the image. Mobile uses a 4:5 crop. Line breaks in the heading
+              and subtitle are preserved.
+            </p>
+            <img
+              src={draft.hero.imageUrl}
+              alt={draft.hero.alt}
+              style={{
+                width: '100%',
+                maxWidth: 240,
+                aspectRatio: '4 / 5',
+                objectFit: 'cover',
+                objectPosition: `${draft.hero.imagePosition}% center`,
+              }}
+            />
+            <div className="form-grid">
+              <label className="full">
+                Hero image
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+                    void uploadCarouselImage(-1, file);
+                  }}
+                />
+              </label>
+              {(
+                [
+                  ['title', 'Heading'],
+                  ['subtitle', 'Subtitle'],
+                  ['button', 'Button text'],
+                  ['buttonHref', 'Button destination (e.g. /shop)'],
+                  ['alt', 'Image description'],
+                ] as const
+              ).map(([key, label]) => (
+                <label className="full" key={key}>
+                  {label}
+                  <textarea
+                    rows={key === 'title' || key === 'subtitle' ? 2 : 1}
+                    maxLength={
+                      key === 'subtitle'
+                        ? 400
+                        : key === 'buttonHref'
+                          ? 200
+                          : key === 'button'
+                            ? 80
+                            : 160
+                    }
+                    required={key !== 'subtitle'}
+                    value={draft.hero[key]}
+                    onChange={(event) =>
+                      setDraft({ ...draft, hero: { ...draft.hero, [key]: event.target.value } })
+                    }
+                  />
+                </label>
+              ))}
+              {(
+                [
+                  ['textColor', 'Text color'],
+                  ['buttonColor', 'Button background'],
+                  ['buttonTextColor', 'Button text color'],
+                ] as const
+              ).map(([key, label]) => (
+                <label key={key}>
+                  {label}
+                  <input
+                    type="color"
+                    value={draft.hero[key]}
+                    onChange={(event) =>
+                      setDraft({ ...draft, hero: { ...draft.hero, [key]: event.target.value } })
+                    }
+                  />
+                </label>
+              ))}
+              <label className="full">
+                Horizontal image crop: {draft.hero.imagePosition}%
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={draft.hero.imagePosition}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      hero: { ...draft.hero, imagePosition: Number(event.target.value) },
+                    })
+                  }
+                />
+              </label>
+            </div>
+          </details>
           <details
             className="cms-section"
             data-category="Page content"

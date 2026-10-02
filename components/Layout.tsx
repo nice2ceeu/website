@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import SocialLinks from '@/components/SocialLinks';
 import Head from 'next/head';
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, Search, X } from 'lucide-react';
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { defaultLanding, type LandingContent } from '@/lib/landing-content';
@@ -72,8 +72,19 @@ export default function Layout({
             </Link>
           </nav>
           <div className="storefront-account">
-            <Link className="header-shop" href={admin ? '/admin' : '/shop'}>
-              {admin ? 'Back to admin' : 'Find your tee'} <ArrowUpRight size={17} />
+            {admin && (
+              <Link className="header-shop" href="/admin">
+                Back to admin <ArrowUpRight size={17} />
+              </Link>
+            )}
+            <Link
+              className="header-search"
+              href="/shop#shop-search"
+              aria-label="Search tees"
+              title="Search tees"
+              onClick={() => setOpen(false)}
+            >
+              <Search size={22} aria-hidden="true" />
             </Link>
           </div>
           <button

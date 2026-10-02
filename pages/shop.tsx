@@ -55,7 +55,7 @@ export default function Shop({
           </p>
         </div>
         <div className="shop-controls">
-          <label>
+          <label id="shop-search">
             Search tees
             <QuerySearch label="Search tees" placeholder="Search designs or colors…" />
           </label>

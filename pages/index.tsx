@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
@@ -16,39 +17,32 @@ export default function Home({
   const c = content.copy;
   return (
     <Layout title={c.metaTitle} content={content}>
-      <section className="hero">
+      <section
+        className="hero reference-hero"
+        style={
+          {
+            '--hero-text': content.hero.textColor,
+            '--hero-button': content.hero.buttonColor,
+            '--hero-button-text': content.hero.buttonTextColor,
+          } as CSSProperties
+        }
+      >
         <div className="hero-copy">
-          <div className="eyebrow">
-            <span className="little-line" /> {c.heroEyebrow}
-          </div>
-          <h1>
-            {c.heroTitle}
-            <br />
-            <em>{c.heroAccent}</em>
-            <span className="hero-star">✳</span>
-          </h1>
-          <p className="cms-copy">{c.heroDescription}</p>
-          <Link className="button" href="/shop">
-            {c.heroButton} <ArrowUpRight size={19} />
+          <h1>{content.hero.title}</h1>
+          <p className="cms-copy">{content.hero.subtitle}</p>
+          <Link className="button" href={content.hero.buttonHref}>
+            {content.hero.button}
           </Link>
-          <div className="hero-note">{c.heroNote}</div>
         </div>
         <div className="hero-visual">
           <div className="hero-tee">
             <img
-              src="/images/lightmare-sky-stars.webp"
-              alt="Dreamy blue sky with cream clouds and scattered pink and white stars"
+              src={content.hero.imageUrl}
+              alt={content.hero.alt}
+              style={{ objectPosition: `${content.hero.imagePosition}% center` }}
               fetchPriority="high"
             />
           </div>
-          <Link className="hero-caption" href="/shop">
-            <span>
-              LIGHTMARE PH
-              <br />
-              <small>Discover the collection</small>
-            </span>
-            <ArrowUpRight aria-hidden="true" />
-          </Link>
         </div>
       </section>
       <div className="ticker">

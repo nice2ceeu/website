@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Dancing+Script:wght@400&display=swap');
 :root {
   --cream: #f8f6f0;
   --ink: #382d2c;
@@ -2820,16 +2820,7 @@ footer .footer-bottom {
   width: 180px;
 }
 
-/* Larger announcement, using Neue Montreal when installed locally. */
-@font-face {
-  font-family: 'Neue Montreal';
-  src:
-    local('PP Neue Montreal Medium'), local('Neue Montreal Medium'), local('PP Neue Montreal'),
-    local('Neue Montreal');
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-}
+/* Larger announcement using the storefront font. */
 .storefront .announcement {
   font-family: 'Neue Montreal', 'DM Sans', Arial, sans-serif;
   background: var(--blue);
@@ -3097,4 +3088,232 @@ footer .footer-bottom {
 }
 .admin .delete-product-dialog {
   background: #f0f6fa;
+}
+
+/* Centered hero copy and portrait crop on mobile. */
+.storefront {
+  font-family: 'Neue Montreal', 'DM Sans', Arial, sans-serif;
+}
+.storefront h1,
+.storefront h2,
+.storefront h3,
+.storefront em {
+  font-family: inherit;
+}
+.storefront .header-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  text-decoration: none;
+}
+.storefront .header-search:hover {
+  background: var(--blue);
+}
+.storefront .header-search:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+#shop-search {
+  scroll-margin-top: 24px;
+}
+.storefront .hero {
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+}
+.storefront .hero-copy {
+  display: block;
+  width: min(760px, 100%);
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  transform: none;
+  background: #f7f5f0e6;
+  color: var(--ink);
+  border: 1px solid #ffffff80;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+.storefront .hero-copy .eyebrow {
+  justify-content: center;
+}
+.storefront .hero-copy h1 {
+  font-size: clamp(42px, 6vw, 80px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+.storefront .hero-copy em,
+.storefront .hero-copy .hero-star,
+.storefront .hero-copy p,
+.storefront .hero-copy .hero-note {
+  color: var(--ink);
+}
+.storefront .hero-copy .hero-star,
+.storefront .hero-copy .little-line {
+  display: none;
+}
+.storefront .hero-copy p {
+  margin: 20px auto;
+  max-width: 440px;
+}
+.storefront .hero-copy .button {
+  justify-content: center;
+  max-width: 100%;
+}
+@media (max-width: 700px) {
+  .storefront .hero {
+    aspect-ratio: 4 / 5;
+    min-height: 0;
+    padding: 24px 16px;
+  }
+  .storefront .hero-copy {
+    padding: 24px 16px;
+  }
+  .storefront .hero-copy h1 {
+    font-size: clamp(36px, 11vw, 64px);
+  }
+  .storefront .hero-copy p {
+    font-size: 14px;
+    margin: 16px auto;
+  }
+  .storefront .hero-copy .hero-note {
+    display: block;
+    margin-top: 16px;
+  }
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-MediumItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+.storefront {
+  font-weight: 400;
+}
+
+/* Reference hero: open sky above, white copy and a pale CTA below. */
+.storefront .reference-hero {
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 180px 24px 40px;
+}
+.storefront .reference-hero .hero-copy {
+  position: relative;
+  inset: auto;
+  grid-column: 1;
+  justify-self: center;
+  width: min(900px, 100%);
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+}
+.storefront .reference-hero .hero-copy h1 {
+  color: var(--hero-text);
+  font-weight: 700;
+  font-size: clamp(38px, 5.2vw, 72px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  white-space: pre-line;
+  text-shadow: 0 2px 3px #48586c38;
+  margin: 0;
+}
+.storefront .reference-hero .hero-copy p {
+  display: block;
+  color: var(--hero-text);
+  font-family: 'Dancing Script', 'Segoe Script', cursive;
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(19px, 2.1vw, 29px);
+  line-height: 1.15;
+  max-width: none;
+  margin: 24px auto 32px;
+  text-shadow: 0 1px 3px #48586c40;
+}
+.storefront .reference-hero .hero-copy .button {
+  background: var(--hero-button);
+  color: var(--hero-button-text);
+  border: 0;
+  border-radius: 12px;
+  font-size: clamp(16px, 1.5vw, 22px);
+  font-weight: 700;
+  min-width: 195px;
+  padding: 18px 30px;
+}
+.storefront .reference-hero .hero-copy .button:hover {
+  filter: brightness(0.96);
+}
+@media (max-width: 700px) {
+  .storefront .reference-hero {
+    aspect-ratio: auto;
+    min-height: clamp(320px, 100vw, 420px);
+    padding: 80px 16px 20px;
+  }
+  .storefront .reference-hero .hero-copy h1 {
+    font-size: clamp(26px, 8vw, 52px);
+  }
+  .storefront .reference-hero .hero-copy p {
+    font-size: clamp(16px, 4vw, 26px);
+    margin: 16px auto 24px;
+  }
+  .storefront .reference-hero .hero-copy .button {
+    min-width: 34%;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
 }

@@ -6,6 +6,21 @@ import handler from '../pages/api/admin/content';
 import { db } from '../lib/db';
 import { makeSession, cookieName } from '../lib/auth';
 import { getLanding } from '../lib/cms';
+test('hero settings default for older records and reject unsafe destinations', () => {
+  const { hero, ...legacy } = defaultLanding;
+  assert.deepEqual(landingSchema.parse(legacy).hero, hero);
+  for (const patch of [
+    { buttonHref: '//example.com' },
+    { buttonHref: 'javascript:alert(1)' },
+    { imageUrl: 'https://example.com/image.webp' },
+    { textColor: 'red' },
+    { imagePosition: 101 },
+  ])
+    assert.equal(
+      landingSchema.safeParse({ ...defaultLanding, hero: { ...hero, ...patch } }).success,
+      false,
+    );
+});
 test('existing CMS records retire XS while preserving saved measurements and copy', async (t) => {
   process.env.MYSQL_HOST = 'test';
   process.env.MYSQL_PASSWORD = 'test';

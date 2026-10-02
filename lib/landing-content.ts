@@ -140,7 +140,47 @@ const carouselImageUrl = z
     (value) => value.startsWith('https://res.cloudinary.com/'),
     'Carousel images must be hosted on Cloudinary.',
   );
+const heroSchema = z.object({
+  title: z.string().trim().min(1).max(160).default('Welcome to\nyour Lightmare'),
+  subtitle: z.string().trim().max(400).default('Soft Cotton, Better Feel.\nWear what you dream of'),
+  button: z.string().trim().min(1).max(80).default('Shop Now'),
+  imageUrl: z
+    .string()
+    .max(1000)
+    .refine(
+      (value) =>
+        value === '/images/lightmare-sky-stars.webp' ||
+        /^https:\/\/res\.cloudinary\.com\//.test(value),
+      'Upload a hero image to Cloudinary.',
+    )
+    .default('/images/lightmare-sky-stars.webp'),
+  alt: z
+    .string()
+    .trim()
+    .min(1)
+    .max(160)
+    .default('Dreamy blue sky with cream clouds and scattered stars'),
+  buttonHref: z
+    .string()
+    .max(200)
+    .regex(/^\/(?!\/)[a-zA-Z0-9/#?=&_-]*$/)
+    .default('/shop'),
+  textColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default('#ffffff'),
+  buttonColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default('#f0f0f0'),
+  buttonTextColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default('#8eabc0'),
+  imagePosition: z.number().min(0).max(100).default(50),
+});
 export const landingSchema = z.object({
+  hero: heroSchema.default(() => heroSchema.parse({})),
   copy: z.object(
     Object.fromEntries(contentFields.map(([key]) => [key, text])) as Record<
       ContentKey,
@@ -187,6 +227,7 @@ export const landingSchema = z.object({
 });
 export type LandingContent = z.infer<typeof landingSchema>;
 export const defaultLanding: LandingContent = {
+  hero: heroSchema.parse({}),
   copy: Object.fromEntries(contentFields.map(([key, , , value]) => [key, value])) as Record<
     ContentKey,
     string
