@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import Head from 'next/head';
 import AdminLayout from '@/components/AdminLayout';
 import {
   contentFields,
@@ -42,7 +43,7 @@ export default function ContentEditor({
   const [category, setCategory] = useState<Category>('Page content');
   const [uploadingSlide, setUploadingSlide] = useState<number | null>(null);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
-  async function uploadCarouselImage(index: number, file: File | undefined) {
+  async function uploadImage(index: number, file: File | undefined) {
     if (!file) return;
     setMessage('');
     if (file.size > 10 * 1024 * 1024) {
@@ -64,10 +65,8 @@ export default function ContentEditor({
       if (!response.ok) throw new Error(result.error || 'Upload failed.');
       setDraft((current) => ({
         ...current,
+        faviconUrl: index === -2 ? result.url : current.faviconUrl,
         hero: index === -1 ? { ...current.hero, imageUrl: result.url } : current.hero,
-        carouselSlides: current.carouselSlides.map((slide, slideIndex) =>
-          slideIndex === index ? { ...slide, imageUrl: result.url } : slide,
-        ),
       }));
       setMessage('Image uploaded. Publish changes to show it on the storefront.');
     } catch (error) {
@@ -101,6 +100,10 @@ export default function ContentEditor({
   }
   return (
     <AdminLayout>
+      <Head>
+        <link rel="icon" href={saved.faviconUrl} key="favicon" />
+        <link rel="icon" href={saved.faviconUrl} key="favicon-png" />
+      </Head>
       <div className="eyebrow">LIGHTMARE PH / LANDING PAGE CMS</div>
       <h1>Landing page content</h1>
       <p>Only content currently displayed on the storefront is available here.</p>
@@ -162,6 +165,46 @@ export default function ContentEditor({
         <fieldset disabled={busy || uploadingSlide !== null || revision < 1} className="cms-fields">
           <details
             className="cms-section"
+            data-category="Settings"
+            hidden={category !== 'Settings'}
+            open
+          >
+            <summary>Browser tab icon</summary>
+            <p className="form-note">
+              Upload a square PNG, JPEG, or WebP up to 10 MB. Use a simple image that stays clear at
+              a small size, then publish changes.
+            </p>
+            <img
+              src={draft.faviconUrl}
+              alt="Current browser tab icon"
+              width={64}
+              height={64}
+              style={{ objectFit: 'contain' }}
+            />
+            <label>
+              Replacement tab icon
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  void uploadImage(-2, file);
+                }}
+              />
+            </label>
+            {uploadingSlide === -2 && <small>Uploading and compressing…</small>}
+            <button
+              type="button"
+              className="text-link"
+              disabled={draft.faviconUrl === defaultLanding.faviconUrl}
+              onClick={() => setDraft({ ...draft, faviconUrl: defaultLanding.faviconUrl })}
+            >
+              Restore default icon
+            </button>
+          </details>
+          <details
+            className="cms-section"
             data-category="Page content"
             hidden={category !== 'Page content'}
             open
@@ -191,7 +234,7 @@ export default function ContentEditor({
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     event.target.value = '';
-                    void uploadCarouselImage(-1, file);
+                    void uploadImage(-1, file);
                   }}
                 />
               </label>
@@ -260,55 +303,6 @@ export default function ContentEditor({
               </label>
             </div>
           </details>
-          <details
-            className="cms-section"
-            data-category="Page content"
-            hidden={category !== 'Page content'}
-            open
-          >
-            <summary>Hero carousel</summary>
-            <p className="form-note">
-              Four slides repeat automatically. Upload a JPEG, PNG, or WebP image up to 10 MB.
-            </p>
-            <div className="cms-carousel-grid">
-              {draft.carouselSlides.map((slide, index) => (
-                <div className="cms-carousel-item" key={index}>
-                  <img src={slide.imageUrl} alt={slide.alt} />
-                  <strong>Slide {index + 1}</strong>
-                  <label>
-                    Replacement image
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      disabled={uploadingSlide !== null}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        event.target.value = '';
-                        void uploadCarouselImage(index, file);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    Image description
-                    <input
-                      required
-                      maxLength={160}
-                      value={slide.alt}
-                      onChange={(event) =>
-                        setDraft({
-                          ...draft,
-                          carouselSlides: draft.carouselSlides.map((old, slideIndex) =>
-                            slideIndex === index ? { ...old, alt: event.target.value } : old,
-                          ),
-                        })
-                      }
-                    />
-                  </label>
-                  {uploadingSlide === index && <small>Uploading and compressing…</small>}
-                </div>
-              ))}
-            </div>
-          </details>
           {[...new Set(editableContentFields.map(([, group]) => group))].map((group) => (
             <details
               className="cms-section"
@@ -325,7 +319,7 @@ export default function ContentEditor({
                       {label}
                       <textarea
                         rows={key.toLowerCase().match(/body|description|note/) ? 3 : 2}
-                        required
+                        required={key !== 'aboutHeading' && key !== 'aboutBody'}
                         maxLength={2000}
                         value={draft.copy[key]}
                         onChange={(e) =>

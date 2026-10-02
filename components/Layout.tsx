@@ -44,6 +44,8 @@ export default function Layout({
         <title>{`${title} — LIGHTMARE PH`}</title>
         <meta name="description" content={content.copy.metaDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href={content.faviconUrl} key="favicon" />
+        <link rel="icon" href={content.faviconUrl} key="favicon-png" />
       </Head>
       <div className="storefront">
         <div className="announcement">{content.copy.announcement}</div>
@@ -67,14 +69,23 @@ export default function Layout({
             <Link href="/#size-guide" onClick={() => setOpen(false)}>
               Size guide
             </Link>
+            <Link href="/#about-us" onClick={() => setOpen(false)}>
+              About us
+            </Link>
             <Link href="/#faq" onClick={() => setOpen(false)}>
               FAQs
             </Link>
           </nav>
           <div className="storefront-account">
             {admin && (
-              <Link className="header-shop" href="/admin">
-                Back to admin <ArrowUpRight size={17} />
+              <Link
+                className="header-shop"
+                href="/admin"
+                aria-label="Back to admin"
+                title="Back to admin"
+              >
+                <span className="header-admin-label">Back to admin</span>
+                <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             )}
             <Link

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
@@ -15,6 +15,7 @@ export default function Home({
   content: LandingContent;
 }) {
   const c = content.copy;
+  const [aboutOpen, setAboutOpen] = useState(false);
   return (
     <Layout title={c.metaTitle} content={content}>
       <section
@@ -194,6 +195,26 @@ export default function Home({
         <a className="button" href="#social-links">
           Here <ArrowUpRight size={18} aria-hidden="true" />
         </a>
+      </section>
+      <section className="section about-section" id="about-us" aria-labelledby="about-label">
+        <div className="eyebrow" id="about-label">
+          {c.aboutLabel}
+        </div>
+        {c.aboutHeading && <h2 className="cms-copy">{c.aboutHeading}</h2>}
+        {c.aboutBody && <p className="cms-copy">{c.aboutBody}</p>}
+        <button
+          type="button"
+          className="button about-toggle"
+          aria-expanded={aboutOpen}
+          aria-controls="about-description"
+          onClick={() => setAboutOpen((open) => !open)}
+        >
+          {c.aboutToggleText}
+          <span aria-hidden="true">{aboutOpen ? '−' : '+'}</span>
+        </button>
+        <div id="about-description" className="about-description" hidden={!aboutOpen}>
+          <p className="cms-copy">{c.aboutDescription}</p>
+        </div>
       </section>
       <section className="section faq" id="faq">
         <div>

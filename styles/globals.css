@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Dancing+Script:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&display=swap');
 :root {
   --cream: #f8f6f0;
   --ink: #382d2c;
@@ -127,7 +127,7 @@ p {
   align-items: center;
   gap: 18px;
   font-size: 12px;
-  border-bottom: 1px solid var(--ink);
+  text-decoration: none;
   padding-bottom: 7px;
 }
 .menu {
@@ -3244,6 +3244,110 @@ footer .footer-bottom {
   font-weight: 400;
 }
 
+.storefront .about-section {
+  text-align: center;
+}
+.storefront .about-section .eyebrow {
+  justify-content: center;
+}
+.storefront .about-section h2 {
+  margin: 20px auto;
+  max-width: 900px;
+}
+.storefront .about-section p {
+  max-width: 720px;
+  margin: 20px auto 28px;
+}
+
+/* Use regular font weights throughout the landing and collection pages. */
+.storefront:has(main > #tees),
+.storefront:has(main > #tees) *,
+.storefront:has(main > .shop-page),
+.storefront:has(main > .shop-page) * {
+  font-weight: 400;
+}
+
+/* Deeper pastel blue text for the home collection, shop, and their footers. */
+.storefront main > #tees,
+.storefront main > #tees *,
+.storefront main > #tees ~ section,
+.storefront main > #tees ~ section *,
+.storefront:has(main > #tees) footer,
+.storefront:has(main > #tees) footer *,
+.storefront main > .shop-page,
+.storefront main > .shop-page *,
+.storefront:has(main > .shop-page) footer,
+.storefront:has(main > .shop-page) footer * {
+  color: #7098b8;
+}
+
+.storefront .product-page .sizes button.selected {
+  background: var(--pink);
+  border-color: var(--pink);
+}
+
+.storefront main > .product-page,
+.storefront main > .product-page * {
+  font-weight: 400;
+}
+.storefront main > .product-page h1,
+.storefront main > .product-page h1 *,
+.storefront main > .product-page h2,
+.storefront main > .product-page h2 * {
+  color: #7098b8;
+}
+
+/* Dark gray small text within collections and products, excluding large headings. */
+.storefront main > #tees *:not(h2, h2 *),
+.storefront main > .shop-page *:not(h1, h1 *, h2, h2 *),
+.storefront main > .shop-page input::placeholder,
+.storefront main > .product-page *:not(h1, h1 *, h2, h2 *),
+.storefront main > .product-page input::placeholder,
+.storefront main > .product-page textarea::placeholder {
+  color: #4b4f54;
+}
+
+/* Dark gray supporting copy for the landing page's information sections. */
+.storefront main > #size-guide .section-heading p,
+.storefront main > #size-guide .size-layout,
+.storefront main > #size-guide .size-layout *,
+.storefront main > #how-to-order .steps,
+.storefront main > #how-to-order .steps *,
+.storefront main > #contact p,
+.storefront main > #contact .button,
+.storefront main > #contact .button *,
+.storefront main > #about-us p,
+.storefront main > #about-us .text-link,
+.storefront main > #about-us .text-link *,
+.storefront main > #faq p,
+.storefront main > #faq p *,
+.storefront main > #faq details,
+.storefront main > #faq details * {
+  color: #4b4f54;
+}
+
+.storefront main > #about-us .about-toggle,
+.storefront main > #about-us .about-toggle * {
+  color: #4b4f54;
+}
+.storefront .about-toggle {
+  background: var(--pink);
+  border-color: var(--pink);
+  border-radius: 12px;
+  gap: 16px;
+}
+.storefront .about-description {
+  max-width: 760px;
+  margin: 24px auto 0;
+  padding: 24px;
+  background: #ffffff80;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.storefront .about-description p {
+  margin: 0;
+}
+
 /* Reference hero: open sky above, white copy and a pale CTA below. */
 .storefront .reference-hero {
   grid-template-columns: minmax(0, 1fr);
@@ -3275,8 +3379,8 @@ footer .footer-bottom {
 .storefront .reference-hero .hero-copy p {
   display: block;
   color: var(--hero-text);
-  font-family: 'Dancing Script', 'Segoe Script', cursive;
-  font-style: normal;
+  font-family: inherit;
+  font-style: italic;
   font-weight: 400;
   font-size: clamp(19px, 2.1vw, 29px);
   line-height: 1.15;
@@ -3301,6 +3405,7 @@ footer .footer-bottom {
   .storefront .reference-hero {
     aspect-ratio: auto;
     min-height: clamp(320px, 100vw, 420px);
+    align-items: end;
     padding: 80px 16px 20px;
   }
   .storefront .reference-hero .hero-copy h1 {
@@ -3315,5 +3420,33 @@ footer .footer-bottom {
     padding: 13px 26px;
     border-radius: 8px;
     font-size: 16px;
+  }
+  .storefront .header {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .storefront .brand-logo {
+    width: clamp(120px, 38vw, 145px);
+  }
+  .storefront .storefront-account {
+    flex-shrink: 0;
+    margin-right: 0;
+    gap: 4px;
+  }
+  .storefront .header-admin-label {
+    display: none;
+  }
+  .storefront .header-shop {
+    width: 36px;
+    height: 44px;
+    justify-content: center;
+    padding-bottom: 0;
+  }
+  .storefront .header .menu {
+    flex-shrink: 0;
+    width: 36px;
+    height: 44px;
+    padding: 0;
+    margin-left: 0;
   }
 }

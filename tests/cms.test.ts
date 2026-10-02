@@ -6,6 +6,50 @@ import handler from '../pages/api/admin/content';
 import { db } from '../lib/db';
 import { makeSession, cookieName } from '../lib/auth';
 import { getLanding } from '../lib/cms';
+test('retired carousel settings are stripped without changing active content', () => {
+  const legacy = {
+    ...defaultLanding,
+    carouselSlides: [{ imageUrl: 'https://example.com/retired.webp', alt: 'Retired carousel' }],
+  };
+  assert.deepEqual(landingSchema.parse(legacy), defaultLanding);
+});
+
+test('tab icon defaults for existing CMS records and validates uploaded URLs', () => {
+  const { faviconUrl, ...legacy } = defaultLanding;
+  assert.equal(landingSchema.parse(legacy).faviconUrl, faviconUrl);
+  const uploaded = 'https://res.cloudinary.com/demo/image/upload/icon.webp';
+  assert.equal(landingSchema.parse({ ...legacy, faviconUrl: uploaded }).faviconUrl, uploaded);
+  for (const value of [
+    'javascript:alert(1)',
+    '//example.com/icon.png',
+    'https://res.cloudinary.com.evil.test/icon.png',
+  ]) {
+    assert.equal(landingSchema.safeParse({ ...legacy, faviconUrl: value }).success, false);
+  }
+});
+
+test('about section defaults for older records and supports expandable copy', () => {
+  const copy = { ...defaultLanding.copy } as Record<string, string>;
+  for (const key of Object.keys(copy)) if (key.startsWith('about')) delete copy[key];
+  const parsed = landingSchema.parse({ ...defaultLanding, copy });
+  assert.equal(parsed.copy.aboutLabel, 'About Lightmare');
+  assert.equal(parsed.copy.aboutHeading, '');
+  assert.equal(parsed.copy.aboutBody, '');
+  assert.equal(parsed.copy.aboutToggleText, 'Explore The World of Lightmare');
+  assert.ok(parsed.copy.aboutDescription.length > 0);
+  assert.equal(parsed.copy.collectionTitle, defaultLanding.copy.collectionTitle);
+  const edited = {
+    ...parsed.copy,
+    aboutHeading: 'Our world',
+    aboutBody: 'Our story.',
+    aboutToggleText: 'Read our story',
+    aboutDescription: 'More about our world.\n\nAnother paragraph.',
+  };
+  assert.deepEqual(landingSchema.parse({ ...parsed, copy: edited }).copy, edited);
+  const legacy = { ...edited, aboutButtonText: 'Explore', aboutButtonHref: '/shop' };
+  assert.deepEqual(landingSchema.parse({ ...parsed, copy: legacy }).copy, edited);
+});
+
 test('hero settings default for older records and reject unsafe destinations', () => {
   const { hero, ...legacy } = defaultLanding;
   assert.deepEqual(landingSchema.parse(legacy).hero, hero);

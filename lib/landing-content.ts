@@ -102,6 +102,16 @@ export const contentFields = [
     'Lifestyle description',
     'Your coffee-run companion.\nYour weekend uniform.\nYour new “I’ll just wear this” tee.',
   ],
+  ['aboutLabel', 'About us', 'Section label', 'About Lightmare'],
+  ['aboutHeading', 'About us', 'Main heading', ''],
+  ['aboutBody', 'About us', 'Body', ''],
+  ['aboutToggleText', 'About us', 'Button text', 'Explore The World of Lightmare'],
+  [
+    'aboutDescription',
+    'About us',
+    'Expandable description',
+    'Our world begins with a little imagination. Discover original designs inspired by daydreams, everyday moments, and the freedom to express yourself. Each collection invites you to find a tee that feels like you.',
+  ],
   ['faqTitle', 'FAQs', 'Heading', 'A few good'],
   ['faqAccent', 'FAQs', 'Heading emphasis', 'questions.'],
   ['socialTitle', 'Socials', 'Heading', 'Looks better'],
@@ -132,13 +142,6 @@ const socialUrl = z
         }
       })(),
     'Use an HTTPS URL or leave blank.',
-  );
-const carouselImageUrl = z
-  .url()
-  .max(1000)
-  .refine(
-    (value) => value.startsWith('https://res.cloudinary.com/'),
-    'Carousel images must be hosted on Cloudinary.',
   );
 const heroSchema = z.object({
   title: z.string().trim().min(1).max(160).default('Welcome to\nyour Lightmare'),
@@ -180,13 +183,44 @@ const heroSchema = z.object({
   imagePosition: z.number().min(0).max(100).default(50),
 });
 export const landingSchema = z.object({
+  faviconUrl: z
+    .union([
+      z.literal('/favicon-32.png'),
+      z
+        .url()
+        .max(1000)
+        .refine((value) => {
+          try {
+            const url = new URL(value);
+            return (
+              url.protocol === 'https:' &&
+              url.hostname === 'res.cloudinary.com' &&
+              !url.username &&
+              !url.password
+            );
+          } catch {
+            return false;
+          }
+        }, 'Upload a tab icon to Cloudinary.'),
+    ])
+    .default('/favicon-32.png'),
   hero: heroSchema.default(() => heroSchema.parse({})),
-  copy: z.object(
-    Object.fromEntries(contentFields.map(([key]) => [key, text])) as Record<
-      ContentKey,
-      typeof text
-    >,
-  ),
+  copy: z
+    .object(
+      Object.fromEntries(contentFields.map(([key]) => [key, text])) as Record<
+        ContentKey,
+        typeof text
+      >,
+    )
+    .extend({
+      aboutLabel: text.default('About Lightmare'),
+      aboutHeading: z.string().trim().max(2000).default(''),
+      aboutBody: z.string().trim().max(2000).default(''),
+      aboutToggleText: text.default('Explore The World of Lightmare'),
+      aboutDescription: text.default(
+        'Our world begins with a little imagination. Discover original designs inspired by daydreams, everyday moments, and the freedom to express yourself. Each collection invites you to find a tee that feels like you.',
+      ),
+    }),
   contactEmail: z.email().max(200),
   instagram: socialUrl,
   tiktok: socialUrl,
@@ -194,14 +228,6 @@ export const landingSchema = z.object({
     .string()
     .max(100)
     .regex(/^$|^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  carouselSlides: z
-    .array(
-      z.object({
-        imageUrl: carouselImageUrl,
-        alt: z.string().trim().min(1).max(160),
-      }),
-    )
-    .length(4),
   ticker: z.array(z.string().trim().min(1).max(100)).length(4),
   steps: z.array(z.object({ title: z.string().trim().min(1).max(100), body: text })).length(4),
   faqs: z
@@ -227,6 +253,7 @@ export const landingSchema = z.object({
 });
 export type LandingContent = z.infer<typeof landingSchema>;
 export const defaultLanding: LandingContent = {
+  faviconUrl: '/favicon-32.png',
   hero: heroSchema.parse({}),
   copy: Object.fromEntries(contentFields.map(([key, , , value]) => [key, value])) as Record<
     ContentKey,
@@ -236,28 +263,6 @@ export const defaultLanding: LandingContent = {
   instagram: '',
   tiktok: '',
   featuredSlug: '',
-  carouselSlides: [
-    {
-      imageUrl:
-        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900887/lightmare/carousel/lightmare-ph-celestial-2026.webp',
-      alt: 'Model wearing a cream celestial graphic tee',
-    },
-    {
-      imageUrl:
-        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900888/lightmare/carousel/lightmare-ph-dusty-rose-2026.webp',
-      alt: 'Model wearing a dusty rose floral graphic tee',
-    },
-    {
-      imageUrl:
-        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900889/lightmare/carousel/lightmare-ph-friends-2026.webp',
-      alt: 'Friends wearing butter yellow and powder blue graphic tees',
-    },
-    {
-      imageUrl:
-        'https://res.cloudinary.com/ybxh4efa/image/upload/v1790900890/lightmare/carousel/lightmare-ph-starburst-2026.webp',
-      alt: 'Model wearing a burgundy starburst graphic tee',
-    },
-  ],
   ticker: [
     'NOT MADE TO BLEND IN',
     'GOOD TEES, GOOD DAYS',
