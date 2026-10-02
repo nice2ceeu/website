@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import QuerySearch from '@/components/QuerySearch';
 import Pagination from '@/components/Pagination';
 import { pagination, canonicalPage, type Paging } from '@/lib/pagination';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { GetServerSideProps } from 'next';
 import AdminLayout from '@/components/AdminLayout';
 import { sizes, money, type Product } from '@/lib/catalog';
@@ -35,12 +35,25 @@ export default function Products({
   published: number;
 }) {
   const router = useRouter();
+  const deleteDialog = useRef<HTMLDialogElement>(null);
+  const [deleteError, setDeleteError] = useState('');
   const [autoSlug, setAutoSlug] = useState(true);
   const [editing, setEditing] = useState<Product | null>(null),
     [price, setPrice] = useState('690.00'),
     [message, setMessage] = useState(error),
     [busy, setBusy] = useState(false),
     [deleting, setDeleting] = useState<Product | null>(null);
+  useEffect(() => {
+    if (!deleting) return;
+    const dialog = deleteDialog.current;
+    dialog?.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [deleting]);
   function edit(product: Product) {
     setAutoSlug(!product.id);
     setDeleting(null);
@@ -113,17 +126,24 @@ export default function Products({
     }
   }
   async function remove() {
-    if (!deleting) return;
+    if (!deleting?.id || busy) return;
     setBusy(true);
+    setDeleteError('');
     try {
       const r = await fetch(`/api/admin/products?id=${deleting.id}`, { method: 'DELETE' });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error);
       setDeleting(null);
-      await refresh();
-      setMessage('Product deleted from the catalog. Existing orders are preserved.');
+      try {
+        await refresh();
+        setMessage('Product deleted from the catalog. Existing orders are preserved.');
+      } catch {
+        setMessage(
+          'Product deleted. Refresh the page to update the list. Existing orders are preserved.',
+        );
+      }
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Unable to delete product.');
+      setDeleteError(e instanceof Error ? e.message : 'Unable to delete product.');
     } finally {
       setBusy(false);
     }
@@ -192,6 +212,7 @@ export default function Products({
                           disabled={busy}
                           onClick={() => {
                             setDeleting(p);
+                            setDeleteError('');
                             setMessage('');
                           }}
                         >
@@ -211,21 +232,42 @@ export default function Products({
         </>
       )}
       {deleting && (
-        <section className="order-panel" role="alertdialog" aria-labelledby="delete-title">
+        <dialog
+          ref={deleteDialog}
+          className="delete-product-dialog"
+          role="alertdialog"
+          aria-labelledby="delete-title"
+          aria-describedby="delete-description"
+          onCancel={(event) => {
+            event.preventDefault();
+            if (!busy) setDeleting(null);
+          }}
+        >
           <h2 id="delete-title">Delete {deleting.name}?</h2>
-          <p>
+          <p id="delete-description">
             This removes the product from the shop and prevents new orders. Existing order records
             are kept.
           </p>
+          {deleteError && (
+            <p className="error" role="alert">
+              {deleteError}
+            </p>
+          )}
           <div className="product-actions">
             <button className="button" disabled={busy} onClick={remove}>
               {busy ? 'Deleting…' : 'Delete product'}
             </button>
-            <button className="text-link" disabled={busy} onClick={() => setDeleting(null)}>
+            <button
+              type="button"
+              className="text-link"
+              autoFocus
+              disabled={busy}
+              onClick={() => setDeleting(null)}
+            >
               Cancel
             </button>
           </div>
-        </section>
+        </dialog>
       )}
       {editing && (
         <section className="order-panel">

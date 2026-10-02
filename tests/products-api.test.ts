@@ -15,9 +15,18 @@ test('product API protects mutations and performs create, edit, list and soft de
   process.env.APP_URL = 'http://localhost:3000';
   const token = await makeSession(1, 1);
   const statements: string[] = [];
-  t.mock.method(db(), 'execute', async (sql: string) => {
+  let deleteAffectedRows = 1;
+  let deleteFails = false;
+  t.mock.method(db(), 'execute', async (sql: string, values: unknown[]) => {
     if (sql.includes('FROM admins')) return [[{ session_version: 1 }], []];
     statements.push(sql);
+    if (sql.includes('deleted_at=CURRENT_TIMESTAMP')) {
+      assert.deepEqual(values, [5]);
+      assert.ok(sql.includes('active=FALSE'));
+      assert.ok(sql.includes('deleted_at IS NULL'));
+      if (deleteFails) throw new Error('Database unavailable');
+      return [{ affectedRows: deleteAffectedRows }, []];
+    }
     return [{ affectedRows: 1, insertId: 5 }, []];
   });
   t.mock.method(db(), 'query', async (sql: string) => [
@@ -29,6 +38,7 @@ test('product API protects mutations and performs create, edit, list and soft de
     authenticated = true,
     origin = 'http://localhost:3000',
     body: unknown = {},
+    id = '5',
   ) {
     let status = 200;
     let data: unknown;
@@ -50,7 +60,7 @@ test('product API protects mutations and performs create, edit, list and soft de
     } as unknown as NextApiResponse;
     const req = {
       method,
-      query: { id: '5' },
+      query: { id },
       body,
       headers: { origin, cookie: authenticated ? `${cookieName}=${token}` : '' },
     } as unknown as NextApiRequest;
@@ -58,12 +68,19 @@ test('product API protects mutations and performs create, edit, list and soft de
     return { status, data };
   }
   assert.equal((await call('POST', false)).status, 401);
+  assert.equal((await call('DELETE', false)).status, 401);
   assert.equal((await call('DELETE', true, 'https://other.example')).status, 403);
+  assert.equal((await call('DELETE', true, undefined, {}, 'invalid')).status, 400);
   assert.equal(statements.length, 0);
   const product = { ...products[0], imageUrl: '', availableSizes: [...sizes], active: true };
   assert.equal((await call('POST', true, undefined, product)).status, 201);
   assert.equal((await call('PUT', true, undefined, { ...product, price: 80000 })).status, 200);
   assert.equal((await call('DELETE')).status, 200);
+  deleteAffectedRows = 0;
+  assert.deepEqual(await call('DELETE'), { status: 404, data: { error: 'Product not found.' } });
+  deleteFails = true;
+  assert.equal((await call('DELETE')).status, 503);
+  deleteFails = false;
   assert.deepEqual((await call('GET')).data, {
     products: [],
     published: 0,

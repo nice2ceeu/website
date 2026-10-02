@@ -4,15 +4,21 @@ import { useRouter } from 'next/router';
 import { ReactNode, useState } from 'react';
 import {
   LayoutDashboard,
-  ListOrdered,
-  ArrowUpRight,
+  ShoppingBag,
+  Shirt,
+  Store,
+  Globe,
+  PanelsTopLeft,
   LogOut,
   Settings,
   CreditCard,
+  Menu,
+  X,
 } from 'lucide-react';
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [error, setError] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   async function logout() {
     try {
       const r = await fetch('/api/admin/logout', { method: 'POST' });
@@ -28,18 +34,30 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <title>Lightmare PH — Admin</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
-      <aside>
-        <Link href="/admin" className="wordmark">
-          <img
-            className="admin-brand-logo"
-            src="/images/lightmare-logo-blue.png"
-            alt="Lightmare PH"
-            width={220}
-            height={104}
-          />
-        </Link>
+      <aside className={menuOpen ? 'admin-sidebar expanded' : 'admin-sidebar'}>
+        <div className="admin-sidebar-header">
+          <Link href="/admin" className="wordmark">
+            <img
+              className="admin-brand-logo"
+              src="/images/lightmare-logo-blue.png"
+              alt="Lightmare PH"
+              width={220}
+              height={104}
+            />
+          </Link>
+          <button
+            type="button"
+            className="admin-menu-toggle"
+            aria-controls="admin-navigation"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close admin navigation' : 'Open admin navigation'}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
         <small>THE BACK OFFICE</small>
-        <nav>
+        <nav id="admin-navigation" aria-label="Admin navigation" onClick={() => setMenuOpen(false)}>
           <Link className={router.pathname === '/admin' ? 'active' : ''} href="/admin">
             <LayoutDashboard size={18} /> Overview
           </Link>
@@ -47,25 +65,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             className={router.pathname === '/admin/orders' ? 'active' : ''}
             href="/admin/orders"
           >
-            <ListOrdered size={18} /> Orders
+            <ShoppingBag size={18} /> Orders
           </Link>
           <Link href="/" className="admin-secondary-link">
-            <ArrowUpRight size={16} aria-hidden="true" /> View storefront
+            <Globe size={18} aria-hidden="true" /> View storefront
           </Link>
           <Link
             className={router.pathname === '/admin/products' ? 'active' : ''}
             href="/admin/products"
           >
-            <ListOrdered size={18} /> Products
+            <Shirt size={18} /> Products
           </Link>
           <Link href="/shop" className="admin-secondary-link">
-            <ArrowUpRight size={16} aria-hidden="true" /> Browse products
+            <Store size={18} aria-hidden="true" /> Browse products
           </Link>
           <Link
             className={router.pathname === '/admin/content' ? 'active' : ''}
             href="/admin/content"
           >
-            <LayoutDashboard size={18} /> Landing Page
+            <PanelsTopLeft size={18} /> Landing Page
           </Link>
           <Link
             className={router.pathname === '/admin/settings' ? 'active' : ''}
