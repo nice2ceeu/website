@@ -57,76 +57,85 @@ export default function Orders({
           You’re viewing dummy orders. Editing is disabled until Aiven is connected.
         </div>
       )}
-      <div className="order-filters">
-        <QuerySearch label="Search orders" placeholder="Search name, email, or order reference…" />
-        <select
-          aria-label="Filter by status"
-          value={filter}
-          onChange={(e) => {
-            const query: Record<string, string | string[] | undefined> = {
-              ...router.query,
-              status: e.target.value,
-            };
-            delete query.page;
-            void router.push({ pathname: router.pathname, query }, undefined, { scroll: false });
-          }}
-        >
-          <option value="all">All statuses</option>
-          {statuses.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-      </div>
+      {!order && (
+        <div className="order-filters">
+          <QuerySearch
+            label="Search orders"
+            placeholder="Search name, email, or order reference…"
+          />
+          <select
+            aria-label="Filter by status"
+            value={filter}
+            onChange={(e) => {
+              const query: Record<string, string | string[] | undefined> = {
+                ...router.query,
+                status: e.target.value,
+              };
+              delete query.page;
+              void router.push({ pathname: router.pathname, query }, undefined, { scroll: false });
+            }}
+          >
+            <option value="all">All statuses</option>
+            {statuses.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+      )}
       {message && (
         <p role="status" className="notice">
           {message}
         </p>
       )}
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>REFERENCE</th>
-              <th>CUSTOMER</th>
-              <th>TOTAL</th>
-              <th>STATUS</th>
-              <th>EMAIL</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((o) => (
-              <tr key={o.reference}>
-                <td>
-                  {o.reference}
-                  <small className="date">{o.created_at.slice(0, 10)}</small>
-                </td>
-                <td>
-                  {o.customer_name}
-                  <small className="date">{o.email}</small>
-                </td>
-                <td>{money(o.total)}</td>
-                <td>
-                  <span className={`badge ${o.status}`}>{o.status}</span>
-                </td>
-                <td>{o.email_status}</td>
-                <td>
-                  <button className="text-link" onClick={() => setSelected(o.reference)}>
-                    Details ↗
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!visible.length && <p className="empty">No orders match your search.</p>}
-      </div>
-      <Pagination paging={paging} />
+      {!order && (
+        <>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>REFERENCE</th>
+                  <th>CUSTOMER</th>
+                  <th>TOTAL</th>
+                  <th>STATUS</th>
+                  <th>EMAIL</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((o) => (
+                  <tr key={o.reference}>
+                    <td>
+                      {o.reference}
+                      <small className="date">{o.created_at.slice(0, 10)}</small>
+                    </td>
+                    <td>
+                      {o.customer_name}
+                      <small className="date">{o.email}</small>
+                    </td>
+                    <td>{money(o.total)}</td>
+                    <td>
+                      <span className={`badge ${o.status}`}>{o.status}</span>
+                    </td>
+                    <td>{o.email_status}</td>
+                    <td>
+                      <button className="text-link" onClick={() => setSelected(o.reference)}>
+                        Details ↗
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!visible.length && <p className="empty">No orders match your search.</p>}
+          </div>
+          <Pagination paging={paging} />
+        </>
+      )}
       {order && (
         <section className="order-panel" aria-label="Order details">
           <div className="section-heading">
             <h2>{order.reference}</h2>
-            <button onClick={() => setSelected(null)}>Close ×</button>
+            <button onClick={() => setSelected(null)}>Back to orders</button>
           </div>
           <div className="order-detail-grid">
             <div>

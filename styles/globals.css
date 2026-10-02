@@ -1704,9 +1704,15 @@ p,
   border: 1px solid var(--line);
 }
 .pagination a[aria-current='page'] {
-  background: var(--wine);
-  color: white;
-  border-color: var(--wine);
+  background: var(--pink, #f2bfdc);
+  color: #4b4f54;
+  border-color: var(--pink, #f2bfdc);
+}
+.pagination a:hover,
+.pagination a:focus-visible {
+  background: var(--pink, #f2bfdc);
+  color: #4b4f54;
+  border-color: var(--pink, #f2bfdc);
 }
 .pagination [aria-disabled] {
   opacity: 0.45;
