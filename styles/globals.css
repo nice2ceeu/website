@@ -1826,6 +1826,9 @@ p,
 .payment-settings-form .order-panel {
   margin-top: 18px;
 }
+.payment-settings-form > .product-actions {
+  margin-top: 24px;
+}
 .payment-settings-form textarea {
   resize: none;
 }
@@ -3603,10 +3606,16 @@ footer .footer-bottom {
   opacity: 1;
   transform: none;
   margin-top: 12px;
-  border: 1px solid var(--line);
+  background: var(--pink);
+  border: 1px solid var(--pink);
   width: 100%;
-  color: inherit;
+  color: #4b4f54;
   cursor: pointer;
+}
+.storefront .product-page .add-to-cart {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #4b4f54;
 }
 .storefront .cart-dialog {
   box-sizing: border-box;

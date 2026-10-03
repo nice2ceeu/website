@@ -11,6 +11,13 @@ import {
   saveCheckoutDetails,
   type CheckoutDetails,
 } from '@/lib/checkout-details';
+import {
+  shippingAreas,
+  shippingArea,
+  shippingFee,
+  shippingSettingsSchema,
+  type ShippingSettings,
+} from '@/lib/shipping-pricing';
 export default function CartCheckout({
   settings,
   onBusyChange,
@@ -27,6 +34,33 @@ export default function CartCheckout({
     setSavedDetails(loadCheckoutDetails());
   }, []);
   const [error, setError] = useState('');
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
+  const [shippingError, setShippingError] = useState('');
+  const [shippingRetry, setShippingRetry] = useState(0);
+  const [province, setProvince] = useState('');
+  useEffect(() => {
+    const controller = new AbortController();
+    setShippingError('');
+    fetch('/api/shipping-options', { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Shipping options are unavailable. Please retry.');
+        return shippingSettingsSchema.parse(await response.json());
+      })
+      .then(setShippingSettings)
+      .catch((error) => {
+        if (!controller.signal.aborted) setShippingError(error.message);
+      });
+    return () => controller.abort();
+  }, [shippingRetry]);
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  let quotedShipping: number | null = null;
+  let areaLabel = '';
+  if (province && shippingSettings) {
+    try {
+      quotedShipping = shippingFee(shippingSettings, province, subtotal);
+      areaLabel = shippingAreas[shippingArea(province)];
+    } catch {}
+  }
   const [paymentMethod, setPaymentMethod] = useState<'gcash' | 'bank' | 'cod' | ''>('');
   const [result, setResult] = useState<{ reference: string; emailStatus: string } | null>(null);
   const key = useRef('');
@@ -40,7 +74,7 @@ export default function CartCheckout({
         : '';
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || !items.length) return;
+    if (busy || !items.length || quotedShipping === null) return;
     setBusy(true);
     onBusyChange(true);
     setError('');
@@ -54,6 +88,7 @@ export default function CartCheckout({
         quantity,
       })),
       consent: form.get('consent') === 'on',
+      shippingQuote: quotedShipping,
     };
     const serialized = JSON.stringify(payload);
     try {
@@ -78,6 +113,10 @@ export default function CartCheckout({
         body: JSON.stringify({ ...payload, idempotencyKey: key.current }),
       });
       const data = await response.json();
+      if (!response.ok && data.shippingSettings) {
+        const parsed = shippingSettingsSchema.safeParse(data.shippingSettings);
+        if (parsed.success) setShippingSettings(parsed.data);
+      }
       if (!response.ok) throw new Error(data.error || 'Could not place your order.');
       saveCheckoutDetails(payload);
       submittedTotal.current = data.total;
@@ -171,7 +210,53 @@ export default function CartCheckout({
                   pattern="[+0-9 ()\-]{7,25}"
                 />
               </label>
-              <AddressFields initialDetails={savedDetails} />
+              <AddressFields initialDetails={savedDetails} onProvinceChange={setProvince} />
+              <div className="full totals" aria-live="polite">
+                <div>
+                  <span>Subtotal</span>
+                  <span>{money(subtotal)}</span>
+                </div>
+                <div>
+                  <span>Shipping{areaLabel ? ` — ${areaLabel}` : ''}</span>
+                  <span>
+                    {quotedShipping === null
+                      ? shippingError
+                        ? 'Unavailable'
+                        : !shippingSettings
+                          ? 'Loading shipping…'
+                          : 'Select a delivery area'
+                      : quotedShipping === 0
+                        ? 'Free'
+                        : money(quotedShipping)}
+                  </span>
+                </div>
+                <div className="grand-total">
+                  <strong>Total</strong>
+                  <strong>
+                    {quotedShipping === null
+                      ? 'Calculated after area selection'
+                      : money(subtotal + quotedShipping)}
+                  </strong>
+                </div>
+              </div>
+              {shippingSettings?.freeShippingThreshold !== null && shippingSettings && (
+                <p className="full form-note">
+                  Free shipping on product orders of {money(shippingSettings.freeShippingThreshold)}{' '}
+                  or more.
+                </p>
+              )}
+              {shippingError && (
+                <p className="full error" role="alert">
+                  {shippingError}{' '}
+                  <button
+                    type="button"
+                    className="text-link"
+                    onClick={() => setShippingRetry((value) => value + 1)}
+                  >
+                    Retry
+                  </button>
+                </p>
+              )}
               <PaymentSelection
                 settings={settings}
                 value={paymentMethod}
@@ -195,7 +280,11 @@ export default function CartCheckout({
                 {error}
               </p>
             )}
-            <button className="button wide" disabled={busy} type="submit">
+            <button
+              className="button wide"
+              disabled={busy || quotedShipping === null}
+              type="submit"
+            >
               {busy ? 'Placing your request…' : 'Place order request'}
               <ArrowUpRight size={18} />
             </button>

@@ -5,6 +5,7 @@ import { pagination, canonicalPage, type Paging } from '@/lib/pagination';
 import type { GetServerSideProps } from 'next';
 import { useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
+import ShippingAdjustment from '@/components/ShippingAdjustment';
 import type { Order } from '@/lib/admin-data';
 import { money } from '@/lib/catalog';
 import { statuses } from '@/lib/validation';
@@ -217,6 +218,16 @@ export default function Orders({
               <p>Notes: {order.notes || 'None'}</p>
             </div>
           </div>
+          <ShippingAdjustment
+            key={order.reference + ':' + order.shipping + ':' + order.total}
+            order={order}
+            busy={busy || demo}
+            onBusyChange={setBusy}
+            onSaved={async (message) => {
+              await router.replace(router.asPath, undefined, { scroll: false });
+              setMessage(message);
+            }}
+          />
           <label>
             Status for the entire order
             <select

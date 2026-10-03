@@ -5,7 +5,8 @@ import { sameOrigin } from '@/lib/api';
 import { db } from '@/lib/db';
 import { statuses } from '@/lib/validation';
 import { sendOrderEmail } from '@/lib/email';
-import { readOrderItems } from '@/lib/order-items';
+import { emailOrderFromRow } from '@/lib/order-email';
+import { adjustOrderShipping, ShippingAdjustmentError } from '@/lib/adjust-order-shipping';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Cache-Control', 'no-store');
   if (!(await isAdmin(req))) return res.status(401).json({ error: 'Sign in required' });
@@ -24,31 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ]);
       if (!rows[0]) return res.status(404).json({ error: 'Order not found' });
       const o = rows[0];
-      await sendOrderEmail({
-        reference,
-        items: readOrderItems(o as Parameters<typeof readOrderItems>[0]),
-        email: o.email,
-        name: o.customer_name,
-        productName: o.product_name,
-        size: o.size,
-        color: o.color,
-        quantity: o.quantity,
-        total: o.total,
-        unitPrice: o.unit_price,
-        shipping: o.shipping,
-        phone: o.phone,
-        address: o.address,
-        city: o.city,
-        postalCode: o.postal_code,
-        notes: o.notes,
-        createdAt: new Date(o.created_at).toISOString(),
-        status: o.status,
-        paymentMethod: o.payment_method,
-        paymentDetails: o.payment_details,
-      });
+      await sendOrderEmail(emailOrderFromRow(o));
       await db().execute('UPDATE orders SET email_status=? WHERE reference=?', ['sent', reference]);
       return res.json({ ok: true });
     }
+    if (req.body && Object.hasOwn(req.body, 'shipping'))
+      return res.json(await adjustOrderShipping(reference, req.body));
     if (!statuses.includes(req.body?.status))
       return res.status(400).json({ error: 'Invalid status' });
     const [result] = await db().execute<ResultSetHeader>(
@@ -57,7 +39,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
     if (!result.affectedRows) return res.status(404).json({ error: 'Order not found' });
     res.json({ ok: true });
-  } catch {
+  } catch (error) {
+    if (error instanceof ShippingAdjustmentError)
+      return res.status(error.status).json({ error: error.message });
     return res
       .status(503)
       .json({ error: 'Unable to complete this action. Check database and email configuration.' });

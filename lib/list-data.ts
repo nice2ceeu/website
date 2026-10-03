@@ -69,12 +69,21 @@ export async function orderPage(query: Query, pageSize = 10) {
     `SELECT * FROM orders WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?`,
     [...values, pageSize, paging.offset],
   );
+  const [adjustments] = rows.length
+    ? await db().query<RowDataPacket[]>(
+        'SELECT * FROM order_shipping_adjustments WHERE order_id IN (' +
+          rows.map(() => '?').join(',') +
+          ') ORDER BY created_at DESC,id DESC',
+        rows.map((row) => row.id),
+      )
+    : [[], []];
   return {
     orders: JSON.parse(
       JSON.stringify(
         rows.map((row) => ({
           ...row,
           items: readOrderItems(row as Parameters<typeof readOrderItems>[0]),
+          shipping_adjustments: adjustments.filter((change) => change.order_id === row.id),
         })),
       ),
     ) as Order[],

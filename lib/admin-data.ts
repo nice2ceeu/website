@@ -8,6 +8,13 @@ export type Order = {
   unit_price: number;
   shipping: number;
   items: OrderItem[];
+  shipping_adjustments: {
+    id: number;
+    old_shipping: number;
+    new_shipping: number;
+    reason: string;
+    created_at: string;
+  }[];
   total: number;
   customer_name: string;
   email: string;

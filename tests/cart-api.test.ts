@@ -28,8 +28,20 @@ test('cart checkout saves one order with all items, rolls back failures, and reu
     })),
     [],
   ]);
+  const shippingRow = {
+    metro_manila: 12000,
+    luzon: 12000,
+    visayas: 12000,
+    mindanao: 12000,
+    free_shipping_threshold: null as number | null,
+    revision: 1,
+  };
   t.mock.method(db(), 'execute', async (sql: string) => [
-    sql.includes('payment_settings') ? [{ cod_enabled: true }] : { affectedRows: 1 },
+    sql.includes('payment_settings')
+      ? [{ cod_enabled: true }]
+      : sql.includes('shipping_settings')
+        ? [shippingRow]
+        : { affectedRows: 1 },
     [],
   ]);
   const calls: string[] = [];
@@ -68,6 +80,7 @@ test('cart checkout saves one order with all items, rolls back failures, and reu
     postalCode: '4102',
     notes: '',
     paymentMethod: 'cod',
+    shippingQuote: 12000,
     consent: true,
     idempotencyKey: 'c74bf539-9671-4e20-b413-ca7cd8356073',
     items: [
@@ -128,7 +141,9 @@ test('cart checkout saves one order with all items, rolls back failures, and reu
   }));
   calls.length = 0;
   inserts = [];
+  shippingRow.luzon = 18000;
   assert.deepEqual((await call()).data, success.data);
+  shippingRow.luzon = 12000;
   assert.equal(emails, 1);
   assert.equal(inserts.length, 0);
   assert.deepEqual(calls, ['begin', 'rollback', 'release']);
@@ -138,4 +153,21 @@ test('cart checkout saves one order with all items, rolls back failures, and reu
   assert.equal((await call()).status, 503);
   assert.deepEqual(calls, ['begin', 'rollback', 'release']);
   assert.equal(emails, 1);
+  failInsert = false;
+  inserts = [];
+  calls.length = 0;
+  shippingRow.luzon = 18000;
+  assert.equal((await call()).status, 409);
+  assert.equal(inserts.length, 0);
+  assert.deepEqual(calls, ['begin', 'rollback', 'release']);
+  const areaOrder = await call('POST', { ...body, shippingQuote: 18000, shipping: 1, total: 1 });
+  assert.equal(areaOrder.status, 201);
+  assert.equal(inserts[0][8], 18000);
+  assert.equal(areaOrder.data.total, products[0].price * 2 + products[1].price + 18000);
+  inserts = [];
+  shippingRow.free_shipping_threshold = 100000;
+  const freeOrder = await call('POST', { ...body, shippingQuote: 0 });
+  assert.equal(freeOrder.status, 201);
+  assert.equal(inserts[0][8], 0);
+  assert.equal(freeOrder.data.total, products[0].price * 2 + products[1].price);
 });

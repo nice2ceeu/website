@@ -80,14 +80,19 @@ function AddressSelect({
 
 export default function AddressFields({
   initialDetails,
+  onProvinceChange,
 }: {
   initialDetails?: CheckoutDetails | null;
+  onProvinceChange?: (provinceCode: string) => void;
 }) {
   const [province, setProvince] = useState(initialDetails?.provinceCode || '');
   const [city, setCity] = useState(initialDetails?.cityCode || '');
   const [barangay, setBarangay] = useState(initialDetails?.barangayCode || '');
   const [postalCode, setPostalCode] = useState(initialDetails?.postalCode || '');
   const [postalEdited, setPostalEdited] = useState(!!initialDetails?.postalCode);
+  useEffect(() => {
+    onProvinceChange?.(province);
+  }, [province, onProvinceChange]);
   return (
     <>
       <AddressSelect

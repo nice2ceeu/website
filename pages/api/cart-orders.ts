@@ -9,6 +9,8 @@ import { getProducts } from '@/lib/products';
 import { resolveAddress } from '@/lib/locations';
 import { getPaymentSettings, paymentForOrder } from '@/lib/payment-settings';
 import { sendOrderEmail } from '@/lib/email';
+import { getShippingSettings } from '@/lib/shipping-settings';
+import { shippingFee } from '@/lib/shipping-pricing';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -22,6 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     catalog = await getProducts();
   } catch {
     return res.status(503).json({ error: 'The product catalog is temporarily unavailable.' });
+  }
+  let shippingSettings;
+  try {
+    shippingSettings = await getShippingSettings();
+  } catch {
+    return res.status(503).json({ error: 'Shipping settings are unavailable. Please try again.' });
   }
   let orders;
   try {
@@ -49,11 +57,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     quantity,
     unitPrice,
   }));
+  const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const shipping = shippingFee(shippingSettings, String(req.body.provinceCode), subtotal);
   const saved = {
     ...orders[0],
     reference,
     items,
-    total: orders.reduce((sum, order) => sum + order.total, 0),
+    shipping,
+    total: subtotal + shipping,
   };
   let connection: PoolConnection | undefined;
   try {
@@ -70,6 +81,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         emailStatus: existing[0].email_status,
         total: Number(existing[0].total),
       });
+    }
+    if (req.body.shippingQuote !== saved.shipping) {
+      await connection.rollback();
+      return res
+        .status(409)
+        .json({
+          error: 'Shipping has changed. Review the updated total and submit again.',
+          shippingSettings,
+        });
     }
     const order = saved;
     await connection.execute(

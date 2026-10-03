@@ -85,7 +85,7 @@ function ProductDetail({ product, content }: { product: Product; content: Landin
               </div>
             </div>
             <button
-              className="button wide"
+              className="button wide add-to-cart"
               type="button"
               onClick={() => {
                 add(product, size, quantity);

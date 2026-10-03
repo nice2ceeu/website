@@ -12,6 +12,7 @@ import {
   LogOut,
   Settings,
   CreditCard,
+  Truck,
   Menu,
   X,
 } from 'lucide-react';
@@ -96,6 +97,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             href="/admin/payments"
           >
             <CreditCard size={18} /> Payments
+          </Link>
+          <Link
+            className={router.pathname === '/admin/shipping' ? 'active' : ''}
+            href="/admin/shipping"
+          >
+            <Truck size={18} /> Shipping
           </Link>
         </nav>
         <button onClick={logout}>

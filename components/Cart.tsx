@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ShoppingBag, X } from 'lucide-react';
 import { useCart } from './CartProvider';
 import CartCheckout from './CartCheckout';
-import { money, sizes, store } from '@/lib/catalog';
+import { money, sizes } from '@/lib/catalog';
 import type { PaymentSettings } from '@/lib/payment-settings';
 export default function Cart() {
   const { items, isOpen, openCart, update, remove } = useCart();
@@ -139,14 +139,6 @@ export default function Cart() {
               <div>
                 <span>Subtotal</span>
                 <span>{money(subtotal)}</span>
-              </div>
-              <div>
-                <span>Shipping</span>
-                <span>{money(store.shipping)}</span>
-              </div>
-              <div className="grand-total">
-                <strong>Total</strong>
-                <strong>{money(subtotal + store.shipping)}</strong>
               </div>
             </div>
           </>

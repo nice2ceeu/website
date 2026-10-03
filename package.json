@@ -19,7 +19,8 @@
     "admin:create": "node --env-file=.env.local scripts/admin-account.mjs create",
     "admin:reset": "node --env-file=.env.local scripts/admin-account.mjs reset",
     "addresses:update": "node scripts/update-addresses.mjs",
-    "postal:update": "node scripts/update-postal-codes.mjs"
+    "postal:update": "node scripts/update-postal-codes.mjs",
+    "db:shipping": "node --env-file=.env.local --import tsx scripts/setup-shipping.ts"
   },
   "dependencies": {
     "jose": "^6.2.12",

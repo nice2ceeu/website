@@ -7,6 +7,8 @@ import { sameOrigin, rateLimit, clientKey } from '@/lib/api';
 import { sendOrderEmail } from '@/lib/email';
 import { getProducts } from '@/lib/products';
 import { resolveAddress } from '@/lib/locations';
+import { getShippingSettings } from '@/lib/shipping-settings';
+import { shippingFee } from '@/lib/shipping-pricing';
 import { getPaymentSettings, paymentForOrder } from '@/lib/payment-settings';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -26,12 +28,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({ error: 'The product catalog is temporarily unavailable. Please try again later.' });
   }
   try {
-    const [address, paymentSettings] = await Promise.all([
+    const [address, paymentSettings, shippingSettings] = await Promise.all([
       resolveAddress(req.body),
       getPaymentSettings(),
+      getShippingSettings(),
     ]);
     const priced = priceOrder({ ...req.body, ...address }, catalog);
-    order = { ...priced, ...paymentForOrder(priced.paymentMethod, paymentSettings) };
+    const subtotal = priced.unitPrice * priced.quantity;
+    const shipping = shippingFee(shippingSettings, String(req.body.provinceCode), subtotal);
+    order = {
+      ...priced,
+      shipping,
+      total: subtotal + shipping,
+      ...paymentForOrder(priced.paymentMethod, paymentSettings),
+    };
   } catch {
     return res
       .status(400)

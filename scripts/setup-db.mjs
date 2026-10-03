@@ -21,6 +21,13 @@ try {
   await connection.query(fs.readFileSync(new URL('./cms-schema.sql', import.meta.url), 'utf8'));
   await connection.query(fs.readFileSync(new URL('./image-schema.sql', import.meta.url), 'utf8'));
   await connection.query(fs.readFileSync(new URL('./payment-schema.sql', import.meta.url), 'utf8'));
+  await connection.query(
+    fs.readFileSync(new URL('./shipping-settings-schema.sql', import.meta.url), 'utf8'),
+  );
+  await connection.query(
+    fs.readFileSync(new URL('./shipping-adjustments-schema.sql', import.meta.url), 'utf8'),
+  );
+  await connection.execute('INSERT IGNORE INTO shipping_settings (id) VALUES (1)');
   for (const statement of [
     'ALTER TABLE orders ADD COLUMN items JSON NULL AFTER total',
     "ALTER TABLE orders ADD COLUMN payment_method ENUM('gcash','bank','cod') NOT NULL DEFAULT 'cod' AFTER notes",

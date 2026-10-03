@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS order_shipping_adjustments (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ order_id BIGINT UNSIGNED NOT NULL,
+ old_shipping INT UNSIGNED NOT NULL,
+ new_shipping INT UNSIGNED NOT NULL,
+ reason VARCHAR(500) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (order_id) REFERENCES orders(id),
+ INDEX idx_shipping_adjustments_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
