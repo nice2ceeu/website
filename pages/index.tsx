@@ -92,7 +92,7 @@ export default function Home({
                   <div className="empty">Image coming soon</div>
                 )}
                 <span className="quick-shop">
-                  Find your fit <ArrowUpRight size={17} />
+                  Order Now <ArrowUpRight size={17} />
                 </span>
               </div>
               <div className="product-info">

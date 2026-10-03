@@ -2527,13 +2527,13 @@ footer .footer-bottom {
 }
 .storefront h2 {
   font-size: clamp(28px, 3.2vw, 44px);
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.04em;
 }
 .storefront h3 {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.4;
 }
 .storefront .eyebrow {
@@ -3537,4 +3537,12 @@ footer .footer-bottom {
   .storefront #tees .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Use the actual Medium font for storefront heading emphasis. */
+.storefront h1,
+.storefront h2,
+.storefront h3,
+.storefront em {
+  font-weight: 500;
 }
