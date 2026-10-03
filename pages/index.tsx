@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useCart } from '@/components/CartProvider';
-import { useEffect, useState, type CSSProperties } from 'react';
-import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
 import type { GetServerSideProps } from 'next';
@@ -18,6 +18,48 @@ export default function Home({
   const { add } = useCart();
   const c = content.copy;
   const [aboutOpen, setAboutOpen] = useState(false);
+  const slider = useRef<HTMLDivElement>(null);
+  const lastProduct = useRef<HTMLDivElement>(null);
+  const [showBrowse, setShowBrowse] = useState(false);
+  const [canSlideLeft, setCanSlideLeft] = useState(false);
+  const [canSlideRight, setCanSlideRight] = useState(false);
+  function updateSlider() {
+    const element = slider.current;
+    if (!element) return;
+    setCanSlideLeft(element.scrollLeft > 1);
+    setCanSlideRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 1);
+  }
+  function slide(direction: number) {
+    const element = slider.current;
+    const card = element?.querySelector<HTMLElement>('.product-card');
+    if (!element || !card) return;
+    const gap = Number.parseFloat(getComputedStyle(element).columnGap) || 0;
+    element.scrollBy({
+      left: direction * (card.offsetWidth + gap),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
+  }
+  useEffect(() => {
+    const element = slider.current;
+    if (!element) return;
+    updateSlider();
+    const resize = new ResizeObserver(updateSlider);
+    resize.observe(element);
+    const last = lastProduct.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) setShowBrowse(true);
+      },
+      { root: element, threshold: 0.6 },
+    );
+    if (last) observer.observe(last);
+    return () => {
+      resize.disconnect();
+      observer.disconnect();
+    };
+  }, [products.length, showBrowse]);
   useEffect(() => {
     if (window.location.hash || window.scrollY > 0 || !products.length) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -76,9 +118,47 @@ export default function Home({
           </div>
           <p className="cms-copy">{c.collectionDescription}</p>
         </div>
-        <div className="product-grid">
-          {products.slice(0, 4).map((p, i) => (
-            <div className="product-card" key={p.slug}>
+        <div className="collection-slider-controls" aria-label="Collection controls">
+          <button
+            type="button"
+            aria-label="Previous products"
+            aria-controls="featured-products"
+            disabled={!canSlideLeft}
+            onClick={() => slide(-1)}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            type="button"
+            aria-label="Next products"
+            aria-controls="featured-products"
+            disabled={!canSlideRight}
+            onClick={() => slide(1)}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+        <div
+          className="product-grid collection-slider"
+          id="featured-products"
+          ref={slider}
+          onScroll={updateSlider}
+          tabIndex={0}
+          aria-label="Featured products. Swipe or use the arrow buttons to browse."
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+              event.preventDefault();
+              slide(event.key === 'ArrowRight' ? 1 : -1);
+            }
+          }}
+        >
+          {products.slice(0, 6).map((p, i) => (
+            <div
+              className="product-card"
+              key={p.slug}
+              ref={i === Math.min(products.length, 6) - 1 ? lastProduct : undefined}
+            >
               <Link
                 href={`/products/${p.slug}`}
                 className="product-image"
@@ -124,15 +204,19 @@ export default function Home({
               </div>
             </div>
           ))}
+          {(showBrowse || !products.length) && (
+            <Link href="/shop" className="collection-browse-card">
+              <span>Discover the full collection</span>
+              <strong>Browse all products</strong>
+              <ArrowRight size={28} aria-hidden="true" />
+            </Link>
+          )}
         </div>
         {error && (
           <p className="error" role="alert">
             {error}
           </p>
         )}
-        <Link className="text-link" href="/shop">
-          Browse all products →
-        </Link>
         <p className="sample-note">{c.collectionNote}</p>
       </section>
       <section className="section about-section" id="about-us" aria-labelledby="about-label">
@@ -289,7 +373,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   res.setHeader('Cache-Control', 'no-store');
   const { getProducts } = await import('@/lib/products');
   const { getLanding } = await import('@/lib/cms');
-  const [productResult, cmsResult] = await Promise.allSettled([getProducts(), getLanding()]);
+  const [productResult, cmsResult] = await Promise.allSettled([
+    getProducts(false, 6),
+    getLanding(),
+  ]);
   if (productResult.status === 'rejected') {
     res.statusCode = 503;
   }

@@ -21,10 +21,13 @@ export function fromRow(row: RowDataPacket): Product {
     tag: row.tag,
   };
 }
-export async function getProducts(includeInactive = false): Promise<Product[]> {
+export async function getProducts(includeInactive = false, limit?: number): Promise<Product[]> {
   if (!configured()) throw new Error('Product database is not configured.');
+  if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 1 || limit > 100))
+    throw new Error('Invalid product limit.');
   const [rows] = await db().query<RowDataPacket[]>(
-    `SELECT * FROM products WHERE deleted_at IS NULL${includeInactive ? '' : ' AND active = TRUE'} ORDER BY id`,
+    `SELECT * FROM products WHERE deleted_at IS NULL${includeInactive ? '' : ' AND active = TRUE'} ORDER BY id${limit === undefined ? '' : ' LIMIT ?'}`,
+    limit === undefined ? [] : [limit],
   );
   return rows.map(fromRow);
 }
