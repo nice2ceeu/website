@@ -3265,14 +3265,6 @@ footer .footer-bottom {
   margin: 20px auto 28px;
 }
 
-/* Use regular font weights throughout the landing and collection pages. */
-.storefront:has(main > #tees),
-.storefront:has(main > #tees) *,
-.storefront:has(main > .shop-page),
-.storefront:has(main > .shop-page) * {
-  font-weight: 400;
-}
-
 /* Deeper pastel blue text for the home collection, shop, and their footers. */
 .storefront main > #tees,
 .storefront main > #tees *,
@@ -3292,10 +3284,6 @@ footer .footer-bottom {
   border-color: var(--pink);
 }
 
-.storefront main > .product-page,
-.storefront main > .product-page * {
-  font-weight: 400;
-}
 .storefront main > .product-page h1,
 .storefront main > .product-page h1 *,
 .storefront main > .product-page h2,
@@ -3374,7 +3362,7 @@ footer .footer-bottom {
 }
 .storefront .reference-hero .hero-copy h1 {
   color: var(--hero-text);
-  font-weight: 700;
+  font-weight: 500;
   font-size: clamp(38px, 5.2vw, 72px);
   line-height: 1.15;
   letter-spacing: -0.025em;
@@ -3387,7 +3375,7 @@ footer .footer-bottom {
   color: var(--hero-text);
   font-family: inherit;
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
   font-size: clamp(19px, 2.1vw, 29px);
   line-height: 1.15;
   max-width: none;
@@ -3400,7 +3388,7 @@ footer .footer-bottom {
   border: 0;
   border-radius: 12px;
   font-size: clamp(16px, 1.5vw, 22px);
-  font-weight: 700;
+  font-weight: 500;
   min-width: 195px;
   padding: 18px 30px;
 }
@@ -3454,5 +3442,99 @@ footer .footer-bottom {
     height: 44px;
     padding: 0;
     margin-left: 0;
+  }
+}
+
+/* Medium emphasis, consistent CTAs, and compact collection cards. */
+.storefront h3,
+.storefront .eyebrow,
+.storefront .nav a,
+.storefront .button,
+.storefront .text-link,
+.storefront .header-shop,
+.storefront .quick-shop,
+.storefront .product-number,
+.storefront .product-info > span,
+.storefront .faq summary {
+  font-weight: 500;
+}
+.storefront .button,
+.storefront .about-toggle {
+  border-radius: 12px;
+}
+.storefront .reference-hero .hero-copy .button {
+  background: #fff;
+  color: #4b4f54;
+  box-shadow: 0 4px 16px #48586c1a;
+}
+.storefront #about-us .eyebrow,
+.storefront #about-us h2,
+.storefront #about-us h2 * {
+  color: #4c7391;
+}
+.storefront .product-image {
+  border-radius: 0;
+}
+.storefront .product-info {
+  min-height: 0;
+  margin-top: 10px;
+  gap: 6px;
+}
+.storefront .product-info h3 {
+  min-height: 0;
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.35;
+}
+.storefront .product-info > span {
+  font-size: 15px;
+}
+.storefront .product-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  gap: 4px 10px;
+}
+.storefront .steps {
+  align-items: stretch;
+  gap: 20px;
+}
+.storefront .steps > div {
+  border: 0;
+  background: var(--pink);
+  padding: clamp(20px, 2.5vw, 32px);
+  min-width: 0;
+}
+.storefront .steps > div > span {
+  font-size: 32px;
+  font-weight: 500;
+}
+.storefront .steps h3 {
+  margin: 20px 0 10px;
+}
+.storefront .steps p {
+  max-width: none;
+  margin-bottom: 0;
+}
+@media (max-width: 700px) {
+  .storefront .button,
+  .storefront .about-toggle,
+  .storefront .reference-hero .hero-copy .button {
+    border-radius: 8px;
+  }
+  .storefront .product-grid {
+    gap: 24px 12px;
+  }
+  .storefront .steps {
+    gap: 14px;
+  }
+}
+
+/* Four featured tees on desktop, two on mobile. */
+.storefront #tees .product-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1000px) {
+  .storefront #tees .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

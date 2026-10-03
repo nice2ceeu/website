@@ -46,6 +46,26 @@ export default function Home({
           </div>
         </div>
       </section>
+      <section className="section about-section" id="about-us" aria-labelledby="about-label">
+        <div className="eyebrow" id="about-label">
+          {c.aboutLabel}
+        </div>
+        {c.aboutHeading && <h2 className="cms-copy">{c.aboutHeading}</h2>}
+        {c.aboutBody && <p className="cms-copy">{c.aboutBody}</p>}
+        <button
+          type="button"
+          className="button about-toggle"
+          aria-expanded={aboutOpen}
+          aria-controls="about-description"
+          onClick={() => setAboutOpen((open) => !open)}
+        >
+          {c.aboutToggleText}
+          <span aria-hidden="true">{aboutOpen ? '−' : '+'}</span>
+        </button>
+        <div id="about-description" className="about-description" hidden={!aboutOpen}>
+          <p className="cms-copy">{c.aboutDescription}</p>
+        </div>
+      </section>
       <div className="ticker">
         {content.ticker.map((text, i) => (
           <span key={i}>{text} ✳</span>
@@ -195,26 +215,6 @@ export default function Home({
         <a className="button" href="#social-links">
           Here <ArrowUpRight size={18} aria-hidden="true" />
         </a>
-      </section>
-      <section className="section about-section" id="about-us" aria-labelledby="about-label">
-        <div className="eyebrow" id="about-label">
-          {c.aboutLabel}
-        </div>
-        {c.aboutHeading && <h2 className="cms-copy">{c.aboutHeading}</h2>}
-        {c.aboutBody && <p className="cms-copy">{c.aboutBody}</p>}
-        <button
-          type="button"
-          className="button about-toggle"
-          aria-expanded={aboutOpen}
-          aria-controls="about-description"
-          onClick={() => setAboutOpen((open) => !open)}
-        >
-          {c.aboutToggleText}
-          <span aria-hidden="true">{aboutOpen ? '−' : '+'}</span>
-        </button>
-        <div id="about-description" className="about-description" hidden={!aboutOpen}>
-          <p className="cms-copy">{c.aboutDescription}</p>
-        </div>
       </section>
       <section className="section faq" id="faq">
         <div>
