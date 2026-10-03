@@ -92,17 +92,11 @@ export default function Home({
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (reducedMotion.matches) return;
     const timer = window.setTimeout(() => {
-      if (!reducedMotion.matches && window.scrollY === 0) {
+      if (!reducedMotion.matches) {
         document.getElementById('tees')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 3000);
-    const cancel = () => window.clearTimeout(timer);
-    const events = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const;
-    events.forEach((event) => window.addEventListener(event, cancel, { passive: true }));
-    return () => {
-      cancel();
-      events.forEach((event) => window.removeEventListener(event, cancel));
-    };
+    }, 1000);
+    return () => window.clearTimeout(timer);
   }, [products.length]);
 
   return (
