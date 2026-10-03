@@ -2,6 +2,7 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import AdminLayout from '@/components/AdminLayout';
 import type { Order } from '@/lib/admin-data';
+import type { EmailUsage } from '@/lib/email-usage';
 import { money, type Product } from '@/lib/catalog';
 export default function Dashboard({
   orders,
@@ -10,6 +11,7 @@ export default function Dashboard({
   productCount,
   products,
   stats,
+  emailUsage,
 }: {
   orders: Order[];
   demo: boolean;
@@ -17,6 +19,7 @@ export default function Dashboard({
   productCount: number | null;
   products: Product[];
   stats: { total: number; pending: number; paid: number; emails: number };
+  emailUsage: EmailUsage;
 }) {
   return (
     <AdminLayout>
@@ -39,6 +42,14 @@ export default function Dashboard({
           ['Pending payment', String(stats.pending)],
           ['Paid order value', money(stats.paid)],
           ['Email needs attention', String(stats.emails)],
+          [
+            'Daily emails used (Brevo)',
+            emailUsage.remaining === null
+              ? emailUsage.status === 'not-configured'
+                ? 'Not configured'
+                : 'Unavailable'
+              : `${emailUsage.limit - emailUsage.remaining} / ${emailUsage.limit}`,
+          ],
         ].map(([label, value]) => (
           <div key={label}>
             <small>{label}</small>
@@ -46,6 +57,16 @@ export default function Dashboard({
           </div>
         ))}
       </div>
+      <p className="sample-note" role="status">
+        {emailUsage.remaining === null
+          ? emailUsage.status === 'not-configured'
+            ? 'Configure Brevo to see the daily email allowance.'
+            : 'Unable to check Brevo email credits. Refresh to try again.'
+          : `${emailUsage.remaining} emails remaining today. ${emailUsage.remaining === 0 ? 'Daily limit reached.' : emailUsage.remaining <= 30 ? 'Daily allowance is running low.' : 'Email allowance available.'} About ${Math.floor(emailUsage.remaining / emailUsage.emailsPerOrder)} order email batches remaining.`}{' '}
+        Each order email batch uses {emailUsage.emailsPerOrder} email
+        {emailUsage.emailsPerOrder === 1 ? ' (customer)' : 's (customer and admin)'}. Resends and
+        status updates also use this allowance. Credits are checked when this page loads.
+      </p>
       <div className="section-heading">
         <h2>Product catalog</h2>
         <Link className="text-link" href="/admin/products">
@@ -135,9 +156,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   res.setHeader('Cache-Control', 'no-store');
   const { isAdmin } = await import('@/lib/auth');
   if (!(await isAdmin(req))) return { redirect: { destination: '/admin/login', permanent: false } };
+  const { getEmailUsage } = await import('@/lib/email-usage');
+  const emailUsagePromise = getEmailUsage();
   try {
     const { overviewData } = await import('@/lib/list-data');
-    return { props: { ...(await overviewData()), demo: false, error: '' } };
+    const [overview, emailUsage] = await Promise.all([overviewData(), emailUsagePromise]);
+    return { props: { ...overview, emailUsage, demo: false, error: '' } };
   } catch {
     return {
       props: {
@@ -145,6 +169,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
         products: [],
         productCount: null,
         stats: { total: 0, pending: 0, paid: 0, emails: 0 },
+        emailUsage: await emailUsagePromise,
         demo: false,
         error: 'Unable to load overview. Please try again.',
       },
