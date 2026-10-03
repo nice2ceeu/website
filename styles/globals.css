@@ -3643,9 +3643,7 @@ footer .footer-bottom {
   gap: 16px;
   padding: 20px;
   text-align: center;
-  background: var(--pink);
   color: #4b4f54;
-  border-radius: 8px;
 }
 .collection-browse-card strong {
   font-size: clamp(12px, 1.5vw, 20px);
