@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCart } from '@/components/CartProvider';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Mail } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
 import type { GetServerSideProps } from 'next';
@@ -16,7 +15,6 @@ export default function Home({
   error: string;
   content: LandingContent;
 }) {
-  const { add } = useCart();
   const router = useRouter();
   const c = content.copy;
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -26,8 +24,6 @@ export default function Home({
   const swipeDeadline = useRef(0);
   const browsingShop = useRef(false);
   const [showBrowse, setShowBrowse] = useState(false);
-  const [canSlideLeft, setCanSlideLeft] = useState(false);
-  const [canSlideRight, setCanSlideRight] = useState(false);
   function browseAtEnd() {
     const element = slider.current;
     if (
@@ -52,8 +48,6 @@ export default function Home({
   function updateSlider() {
     const element = slider.current;
     if (!element) return;
-    setCanSlideLeft(element.scrollLeft > 1);
-    setCanSlideRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 1);
     browseAtEnd();
   }
   function slide(direction: number) {
@@ -139,26 +133,6 @@ export default function Home({
           </div>
           <p className="cms-copy">{c.collectionDescription}</p>
         </div>
-        <div className="collection-slider-controls" aria-label="Collection controls">
-          <button
-            type="button"
-            aria-label="Previous products"
-            aria-controls="featured-products"
-            disabled={!canSlideLeft}
-            onClick={() => slide(-1)}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            type="button"
-            aria-label="Next products"
-            aria-controls="featured-products"
-            disabled={!canSlideRight}
-            onClick={() => slide(1)}
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
         <div
           className="product-grid collection-slider"
           id="featured-products"
@@ -185,7 +159,7 @@ export default function Home({
           }}
           onScroll={updateSlider}
           tabIndex={0}
-          aria-label="Featured products. Swipe or use the arrow buttons to browse."
+          aria-label="Featured products. Swipe or use the keyboard arrow keys to browse."
           onKeyDown={(event) => {
             if (event.target !== event.currentTarget) return;
             if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
@@ -194,11 +168,11 @@ export default function Home({
             }
           }}
         >
-          {products.slice(0, 6).map((p, i) => (
+          {products.slice(0, 4).map((p, i) => (
             <div
               className="product-card"
               key={p.slug}
-              ref={i === Math.min(products.length, 6) - 1 ? lastProduct : undefined}
+              ref={i === Math.min(products.length, 4) - 1 ? lastProduct : undefined}
             >
               <Link
                 href={`/products/${p.slug}`}
@@ -212,15 +186,6 @@ export default function Home({
                   <div className="empty">Image coming soon</div>
                 )}
               </Link>
-              <button
-                type="button"
-                className="quick-shop"
-                onClick={() => {
-                  add(p);
-                }}
-              >
-                Add to cart <ArrowUpRight size={17} />
-              </button>
               <div className="product-info">
                 <h3>
                   <Link href={`/products/${p.slug}`}>{p.name}</Link>
@@ -415,7 +380,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const { getProducts } = await import('@/lib/products');
   const { getLanding } = await import('@/lib/cms');
   const [productResult, cmsResult] = await Promise.allSettled([
-    getProducts(false, 6),
+    getProducts(false, 4),
     getLanding(),
   ]);
   if (productResult.status === 'rejected') {

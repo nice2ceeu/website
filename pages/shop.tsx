@@ -3,7 +3,6 @@ import QuerySearch from '@/components/QuerySearch';
 import Pagination from '@/components/Pagination';
 import { queryText, pagination, canonicalPage, type Paging } from '@/lib/pagination';
 import Link from 'next/link';
-import { useCart } from '@/components/CartProvider';
 import { ArrowUpRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
@@ -23,7 +22,6 @@ export default function Shop({
   paging: Paging;
   colors: string[];
 }) {
-  const { add } = useCart();
   const router = useRouter();
   const query = queryText(router.query.q),
     color = queryText(router.query.color) || 'all',
@@ -110,15 +108,6 @@ export default function Shop({
                   <div className="empty">Image coming soon</div>
                 )}
               </Link>
-              <button
-                type="button"
-                className="quick-shop"
-                onClick={() => {
-                  add(product);
-                }}
-              >
-                Add to cart <ArrowUpRight size={17} />
-              </button>
               <div className="product-info">
                 <h3>
                   <Link href={`/products/${product.slug}`}>{product.name}</Link>
