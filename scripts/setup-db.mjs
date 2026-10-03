@@ -22,6 +22,7 @@ try {
   await connection.query(fs.readFileSync(new URL('./image-schema.sql', import.meta.url), 'utf8'));
   await connection.query(fs.readFileSync(new URL('./payment-schema.sql', import.meta.url), 'utf8'));
   for (const statement of [
+    'ALTER TABLE orders ADD COLUMN items JSON NULL AFTER total',
     "ALTER TABLE orders ADD COLUMN payment_method ENUM('gcash','bank','cod') NOT NULL DEFAULT 'cod' AFTER notes",
     'ALTER TABLE orders ADD COLUMN payment_details TEXT NOT NULL AFTER payment_method',
   ]) {

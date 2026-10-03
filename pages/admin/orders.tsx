@@ -95,6 +95,7 @@ export default function Orders({
                 <tr>
                   <th>REFERENCE</th>
                   <th>CUSTOMER</th>
+                  <th>ITEMS</th>
                   <th>TOTAL</th>
                   <th>STATUS</th>
                   <th>EMAIL</th>
@@ -112,6 +113,7 @@ export default function Orders({
                       {o.customer_name}
                       <small className="date">{o.email}</small>
                     </td>
+                    <td>{o.items.reduce((sum, item) => sum + item.quantity, 0)} tees</td>
                     <td>{money(o.total)}</td>
                     <td>
                       <span className={`badge ${o.status}`}>{o.status}</span>
@@ -154,11 +156,51 @@ export default function Orders({
               </p>
             </div>
             <div>
-              <h3>{order.product_name}</h3>
-              <p>
-                {order.size} / {order.color} × {order.quantity}
-              </p>
-              <strong>{money(order.total)} including shipping</strong>
+              <h3>Order items</h3>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>PRODUCT</th>
+                      <th>SIZE / COLOR</th>
+                      <th>QTY</th>
+                      <th>UNIT PRICE</th>
+                      <th>SUBTOTAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order.items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.productName}</td>
+                        <td>
+                          {item.size} / {item.color}
+                        </td>
+                        <td>{item.quantity}</td>
+                        <td>{money(item.unitPrice)}</td>
+                        <td>{money(item.unitPrice * item.quantity)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="totals">
+                <div>
+                  <span>Subtotal</span>
+                  <span>
+                    {money(
+                      order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
+                    )}
+                  </span>
+                </div>
+                <div>
+                  <span>Shipping</span>
+                  <span>{money(order.shipping)}</span>
+                </div>
+                <div className="grand-total">
+                  <strong>Total</strong>
+                  <strong>{money(order.total)}</strong>
+                </div>
+              </div>
               <p>
                 Payment:{' '}
                 <strong>
@@ -176,7 +218,7 @@ export default function Orders({
             </div>
           </div>
           <label>
-            Order status
+            Status for the entire order
             <select
               disabled={busy || demo}
               value={order.status}

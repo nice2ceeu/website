@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
+    "db:order-items": "node --env-file=.env.local --import tsx scripts/setup-order-items.ts",
     "db:products": "node --env-file=.env.local --import tsx scripts/setup-products.ts",
     "db:cms": "node --env-file=.env.local --import tsx scripts/setup-cms.ts",
     "db:rebrand": "node --env-file=.env.local --import tsx scripts/rebrand-lightmare-ph.ts",

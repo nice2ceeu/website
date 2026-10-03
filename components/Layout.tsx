@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Cart from '@/components/Cart';
 import SocialLinks from '@/components/SocialLinks';
 import Head from 'next/head';
 import { ArrowUpRight, Menu, Search, X } from 'lucide-react';
@@ -77,6 +78,7 @@ export default function Layout({
             </Link>
           </nav>
           <div className="storefront-account">
+            <Cart />
             {admin && (
               <Link
                 className="header-shop"

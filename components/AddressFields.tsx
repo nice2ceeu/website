@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Location } from '@/lib/locations';
 import { suggestedPostalCode } from '@/lib/postal-codes';
+import type { CheckoutDetails } from '@/lib/checkout-details';
 
 function AddressSelect({
   level,
@@ -77,12 +78,16 @@ function AddressSelect({
   );
 }
 
-export default function AddressFields() {
-  const [province, setProvince] = useState('');
-  const [city, setCity] = useState('');
-  const [barangay, setBarangay] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [postalEdited, setPostalEdited] = useState(false);
+export default function AddressFields({
+  initialDetails,
+}: {
+  initialDetails?: CheckoutDetails | null;
+}) {
+  const [province, setProvince] = useState(initialDetails?.provinceCode || '');
+  const [city, setCity] = useState(initialDetails?.cityCode || '');
+  const [barangay, setBarangay] = useState(initialDetails?.barangayCode || '');
+  const [postalCode, setPostalCode] = useState(initialDetails?.postalCode || '');
+  const [postalEdited, setPostalEdited] = useState(!!initialDetails?.postalCode);
   return (
     <>
       <AddressSelect
@@ -150,6 +155,7 @@ export default function AddressFields() {
         <input
           required
           name="address"
+          defaultValue={initialDetails?.address || ''}
           autoComplete="street-address"
           minLength={5}
           maxLength={350}

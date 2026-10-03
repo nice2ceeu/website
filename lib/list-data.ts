@@ -4,6 +4,7 @@ import { fromRow } from './products';
 import { pagination, pageNumber, queryText, type Query } from './pagination';
 import type { Order } from './admin-data';
 import { statuses } from './validation';
+import { readOrderItems } from './order-items';
 
 const literalLike = (value: string) =>
   `%${value.replace(/[!%_]/g, (character) => '!' + character)}%`;
@@ -68,7 +69,17 @@ export async function orderPage(query: Query, pageSize = 10) {
     `SELECT * FROM orders WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?`,
     [...values, pageSize, paging.offset],
   );
-  return { orders: JSON.parse(JSON.stringify(rows)) as Order[], paging };
+  return {
+    orders: JSON.parse(
+      JSON.stringify(
+        rows.map((row) => ({
+          ...row,
+          items: readOrderItems(row as Parameters<typeof readOrderItems>[0]),
+        })),
+      ),
+    ) as Order[],
+    paging,
+  };
 }
 export async function overviewData() {
   const [orders, products, [stats]] = await Promise.all([

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { useState, type CSSProperties } from 'react';
+import { useCart } from '@/components/CartProvider';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
@@ -14,8 +15,27 @@ export default function Home({
   error: string;
   content: LandingContent;
 }) {
+  const { add } = useCart();
   const c = content.copy;
   const [aboutOpen, setAboutOpen] = useState(false);
+  useEffect(() => {
+    if (window.location.hash || window.scrollY > 0 || !products.length) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reducedMotion.matches) return;
+    const timer = window.setTimeout(() => {
+      if (!reducedMotion.matches && window.scrollY === 0) {
+        document.getElementById('tees')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 3000);
+    const cancel = () => window.clearTimeout(timer);
+    const events = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const;
+    events.forEach((event) => window.addEventListener(event, cancel, { passive: true }));
+    return () => {
+      cancel();
+      events.forEach((event) => window.removeEventListener(event, cancel));
+    };
+  }, [products.length]);
+
   return (
     <Layout title={c.metaTitle} content={content}>
       <section
@@ -46,6 +66,75 @@ export default function Home({
           </div>
         </div>
       </section>
+      <section className="section collection" id="tees">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow">{c.collectionLabel}</div>
+            <h2>
+              {c.collectionTitle} <em>{c.collectionAccent}</em>
+            </h2>
+          </div>
+          <p className="cms-copy">{c.collectionDescription}</p>
+        </div>
+        <div className="product-grid">
+          {products.slice(0, 4).map((p, i) => (
+            <div className="product-card" key={p.slug}>
+              <Link
+                href={`/products/${p.slug}`}
+                className="product-image"
+                style={{ background: p.bg }}
+              >
+                <span className="product-number">0{i + 1} / ORIGINAL</span>
+                {p.imageUrl ? (
+                  <img src={p.imageUrl} alt={`${p.name} in ${p.color}`} />
+                ) : (
+                  <div className="empty">Image coming soon</div>
+                )}
+              </Link>
+              <button
+                type="button"
+                className="quick-shop"
+                onClick={() => {
+                  add(p);
+                }}
+              >
+                Add to cart <ArrowUpRight size={17} />
+              </button>
+              <div className="product-info">
+                <h3>
+                  <Link href={`/products/${p.slug}`}>{p.name}</Link>
+                </h3>
+                <span>{money(p.price)}</span>
+              </div>
+              <div className="product-meta">
+                <span>
+                  <i
+                    style={{
+                      background:
+                        p.color === 'Blush'
+                          ? '#dfb4b2'
+                          : p.color === 'Butter'
+                            ? '#ebdba6'
+                            : '#ede8dd',
+                    }}
+                  />
+                  {p.color}
+                </span>
+                <span>{p.availableSizes?.join(' / ')}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <Link className="text-link" href="/shop">
+          Browse all products →
+        </Link>
+        <p className="sample-note">{c.collectionNote}</p>
+      </section>
       <section className="section about-section" id="about-us" aria-labelledby="about-label">
         <div className="eyebrow" id="about-label">
           {c.aboutLabel}
@@ -71,63 +160,6 @@ export default function Home({
           <span key={i}>{text} ✳</span>
         ))}
       </div>
-      <section className="section collection" id="tees">
-        <div className="section-heading">
-          <div>
-            <div className="eyebrow">{c.collectionLabel}</div>
-            <h2>
-              {c.collectionTitle} <em>{c.collectionAccent}</em>
-            </h2>
-          </div>
-          <p className="cms-copy">{c.collectionDescription}</p>
-        </div>
-        <div className="product-grid">
-          {products.slice(0, 4).map((p, i) => (
-            <Link href={`/products/${p.slug}`} className="product-card" key={p.slug}>
-              <div className="product-image" style={{ background: p.bg }}>
-                <span className="product-number">0{i + 1} / ORIGINAL</span>
-                {p.imageUrl ? (
-                  <img src={p.imageUrl} alt={`${p.name} in ${p.color}`} />
-                ) : (
-                  <div className="empty">Image coming soon</div>
-                )}
-                <span className="quick-shop">
-                  Order Now <ArrowUpRight size={17} />
-                </span>
-              </div>
-              <div className="product-info">
-                <h3>{p.name}</h3>
-                <span>{money(p.price)}</span>
-              </div>
-              <div className="product-meta">
-                <span>
-                  <i
-                    style={{
-                      background:
-                        p.color === 'Blush'
-                          ? '#dfb4b2'
-                          : p.color === 'Butter'
-                            ? '#ebdba6'
-                            : '#ede8dd',
-                    }}
-                  />
-                  {p.color}
-                </span>
-                <span>{p.availableSizes?.join(' / ')}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-        {error && (
-          <p className="error" role="alert">
-            {error}
-          </p>
-        )}
-        <Link className="text-link" href="/shop">
-          Browse all products →
-        </Link>
-        <p className="sample-note">{c.collectionNote}</p>
-      </section>
       <section className="story" id="our-story">
         <div className="story-art">
           <span>

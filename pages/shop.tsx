@@ -3,6 +3,7 @@ import QuerySearch from '@/components/QuerySearch';
 import Pagination from '@/components/Pagination';
 import { queryText, pagination, canonicalPage, type Paging } from '@/lib/pagination';
 import Link from 'next/link';
+import { useCart } from '@/components/CartProvider';
 import { ArrowUpRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { money, type Product } from '@/lib/catalog';
@@ -22,6 +23,7 @@ export default function Shop({
   paging: Paging;
   colors: string[];
 }) {
+  const { add } = useCart();
   const router = useRouter();
   const query = queryText(router.query.q),
     color = queryText(router.query.color) || 'all',
@@ -95,20 +97,32 @@ export default function Shop({
         </div>
         <div className="product-grid">
           {visible.map((product) => (
-            <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}>
-              <div className="product-image" style={{ background: product.bg }}>
+            <div className="product-card" key={product.slug}>
+              <Link
+                href={`/products/${product.slug}`}
+                className="product-image"
+                style={{ background: product.bg }}
+              >
                 <span className="product-number">LIGHTMARE PH ORIGINAL</span>
                 {product.imageUrl ? (
                   <img src={product.imageUrl} alt={`${product.name} in ${product.color}`} />
                 ) : (
                   <div className="empty">Image coming soon</div>
                 )}
-                <span className="quick-shop">
-                  Order Now <ArrowUpRight size={17} />
-                </span>
-              </div>
+              </Link>
+              <button
+                type="button"
+                className="quick-shop"
+                onClick={() => {
+                  add(product);
+                }}
+              >
+                Add to cart <ArrowUpRight size={17} />
+              </button>
               <div className="product-info">
-                <h3>{product.name}</h3>
+                <h3>
+                  <Link href={`/products/${product.slug}`}>{product.name}</Link>
+                </h3>
                 <span>{money(product.price)}</span>
               </div>
               <div className="product-meta">
@@ -128,7 +142,7 @@ export default function Shop({
                 </span>
                 <span>{product.availableSizes?.join(' / ')}</span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
         <Pagination paging={paging} />

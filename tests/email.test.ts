@@ -44,6 +44,40 @@ test('invoice escapes user content and itemizes saved prices', () => {
       !orderEmail({ ...order, status }, 'customer').htmlContent.includes('Total amount due'),
     );
 });
+
+test('cart invoice includes every item and one combined subtotal and shipping charge', () => {
+  const email = orderEmail(
+    {
+      ...order,
+      total: 200000,
+      items: [
+        {
+          productSlug: 'off-duty',
+          productName: 'Off Duty Club',
+          size: 'M',
+          color: 'Vintage white',
+          quantity: 2,
+          unitPrice: 69000,
+        },
+        {
+          productSlug: 'second',
+          productName: 'Second <tee>',
+          size: 'L',
+          color: 'Butter',
+          quantity: 1,
+          unitPrice: 50000,
+        },
+      ],
+    },
+    'customer',
+  );
+  assert.ok(email.htmlContent.includes('Second &lt;tee&gt;'));
+  assert.ok(email.textContent.includes('Second <tee>'));
+  assert.ok(email.htmlContent.includes('PHP 1,880.00'));
+  assert.ok(email.textContent.includes('Subtotal: PHP 1,880.00'));
+  assert.equal((email.textContent.match(/Shipping:/g) || []).length, 1);
+  assert.ok(email.textContent.includes('Order total: PHP 2,000.00'));
+});
 test('sends separate HTML emails with text alternatives and reports partial failure', async (t) => {
   process.env.BREVO_API_KEY = 'test-key';
   process.env.BREVO_SENDER_EMAIL = 'sender@example.com';

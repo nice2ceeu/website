@@ -5,6 +5,7 @@ import { sameOrigin } from '@/lib/api';
 import { db } from '@/lib/db';
 import { statuses } from '@/lib/validation';
 import { sendOrderEmail } from '@/lib/email';
+import { readOrderItems } from '@/lib/order-items';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Cache-Control', 'no-store');
   if (!(await isAdmin(req))) return res.status(401).json({ error: 'Sign in required' });
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   if (!sameOrigin(req, res)) return;
   const reference = req.query.reference;
-  if (typeof reference !== 'string' || !/^LM-[A-F0-9]{8}$/.test(reference))
+  if (typeof reference !== 'string' || !/^LM-[A-F0-9]{8}(?:-[1-9][0-9]?)?$/.test(reference))
     return res.status(400).json({ error: 'Invalid reference' });
   try {
     if (req.method === 'POST') {
@@ -25,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const o = rows[0];
       await sendOrderEmail({
         reference,
+        items: readOrderItems(o as Parameters<typeof readOrderItems>[0]),
         email: o.email,
         name: o.customer_name,
         productName: o.product_name,

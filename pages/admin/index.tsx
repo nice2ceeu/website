@@ -94,7 +94,7 @@ export default function Dashboard({
             <tr>
               <th>REFERENCE</th>
               <th>CUSTOMER</th>
-              <th>PRODUCT</th>
+              <th>ITEMS</th>
               <th>TOTAL</th>
               <th>STATUS</th>
             </tr>
@@ -108,7 +108,12 @@ export default function Dashboard({
                   </Link>
                 </td>
                 <td>{o.customer_name}</td>
-                <td>{o.product_name}</td>
+                <td>
+                  {o.items.map((item) => item.productName).join(', ')}
+                  <small className="date">
+                    {o.items.reduce((sum, item) => sum + item.quantity, 0)} tees
+                  </small>
+                </td>
                 <td>{money(o.total)}</td>
                 <td>
                   <span className={`badge ${o.status}`}>{o.status}</span>

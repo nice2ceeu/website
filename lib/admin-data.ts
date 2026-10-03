@@ -1,9 +1,13 @@
+import type { OrderItem } from './order-items';
 export type Order = {
   reference: string;
   product_name: string;
   size: string;
   color: string;
   quantity: number;
+  unit_price: number;
+  shipping: number;
+  items: OrderItem[];
   total: number;
   customer_name: string;
   email: string;
