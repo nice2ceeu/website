@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useCart } from '@/components/CartProvider';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Mail } from 'lucide-react';
@@ -16,18 +17,44 @@ export default function Home({
   content: LandingContent;
 }) {
   const { add } = useCart();
+  const router = useRouter();
   const c = content.copy;
   const [aboutOpen, setAboutOpen] = useState(false);
   const slider = useRef<HTMLDivElement>(null);
   const lastProduct = useRef<HTMLDivElement>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const swipeDeadline = useRef(0);
+  const browsingShop = useRef(false);
   const [showBrowse, setShowBrowse] = useState(false);
   const [canSlideLeft, setCanSlideLeft] = useState(false);
   const [canSlideRight, setCanSlideRight] = useState(false);
+  function browseAtEnd() {
+    const element = slider.current;
+    if (
+      !element ||
+      browsingShop.current ||
+      Date.now() > swipeDeadline.current ||
+      !window.matchMedia('(max-width: 700px)').matches
+    )
+      return;
+    if (
+      element.querySelector('.collection-browse-card') &&
+      element.scrollWidth > element.clientWidth &&
+      element.scrollLeft + element.clientWidth >= element.scrollWidth - 2
+    ) {
+      browsingShop.current = true;
+      swipeDeadline.current = 0;
+      void router.push('/shop').finally(() => {
+        browsingShop.current = false;
+      });
+    }
+  }
   function updateSlider() {
     const element = slider.current;
     if (!element) return;
     setCanSlideLeft(element.scrollLeft > 1);
     setCanSlideRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 1);
+    browseAtEnd();
   }
   function slide(direction: number) {
     const element = slider.current;
@@ -142,6 +169,26 @@ export default function Home({
           className="product-grid collection-slider"
           id="featured-products"
           ref={slider}
+          onTouchStart={(event) => {
+            swipeDeadline.current = 0;
+            const touch = event.touches[0];
+            swipeStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+          }}
+          onTouchCancel={() => {
+            swipeStart.current = null;
+            swipeDeadline.current = 0;
+          }}
+          onTouchEnd={(event) => {
+            const start = swipeStart.current;
+            const touch = event.changedTouches[0];
+            swipeStart.current = null;
+            if (!start || !touch) return;
+            const distance = start.x - touch.clientX;
+            if (distance > 40 && distance > Math.abs(start.y - touch.clientY)) {
+              swipeDeadline.current = Date.now() + 1200;
+              browseAtEnd();
+            }
+          }}
           onScroll={updateSlider}
           tabIndex={0}
           aria-label="Featured products. Swipe or use the arrow buttons to browse."
