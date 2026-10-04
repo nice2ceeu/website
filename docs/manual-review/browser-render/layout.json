@@ -1,0 +1,118 @@
+{
+  "method": "DOCX HTML preview in Chromium. This is not Microsoft Word pagination.",
+  "count": 16,
+  "pages": [
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Lightmare PH Admin Visual Manual",
+      "articleHeight": 611.84375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Sign in and find your way",
+      "articleHeight": 785.6875,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Review the overview",
+      "articleHeight": 800.078125,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Find and inspect an order",
+      "articleHeight": 814.46875,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Update order status and resend emails",
+      "articleHeight": 648.21875,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Adjust shipping on a pending order",
+      "articleHeight": 711.359375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Find and manage products",
+      "articleHeight": 785.6875,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Create or edit a product",
+      "articleHeight": 814.46875,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Add images and control visibility",
+      "articleHeight": 843.171875,
+      "images": 2
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Edit the landing page and hero",
+      "articleHeight": 828.859375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Update shopping help and FAQs",
+      "articleHeight": 677.578125,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Update contact links and page settings",
+      "articleHeight": 687.015625,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Configure payment instructions",
+      "articleHeight": 828.859375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Configure shipping fees",
+      "articleHeight": 828.859375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Account settings and troubleshooting",
+      "articleHeight": 828.859375,
+      "images": 1
+    },
+    {
+      "height": 1122,
+      "scrollHeight": 1122,
+      "title": "Daily checklist and publishing checks",
+      "articleHeight": 806.203125,
+      "images": 1
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "sections": 16,
+  "images": 17,
+  "estimated_layout": [
+    {
+      "section": 1,
+      "height_points": 482,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 2,
+      "height_points": 622,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 3,
+      "height_points": 635,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 4,
+      "height_points": 648,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 5,
+      "height_points": 526,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 6,
+      "height_points": 571,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 7,
+      "height_points": 622,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 8,
+      "height_points": 648,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 9,
+      "height_points": 671,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 10,
+      "height_points": 661,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 11,
+      "height_points": 545,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 12,
+      "height_points": 553,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 13,
+      "height_points": 661,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 14,
+      "height_points": 648,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 15,
+      "height_points": 661,
+      "available_points": 752,
+      "within_estimate": true
+    },
+    {
+      "section": 16,
+      "height_points": 661,
+      "available_points": 752,
+      "within_estimate": true
+    }
+  ],
+  "renderer": "DOCX HTML preview in local headless Chromium. See browser-render/layout.json. Microsoft Word pagination is not verified."
+}
