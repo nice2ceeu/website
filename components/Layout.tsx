@@ -125,7 +125,9 @@ export default function Layout({
             <SocialLinks content={content} />
           </div>
           <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} LIGHTMARE PH. A little out of line.</span>
+            <span>
+              © 2026 {content.copy.footerCopyright}
+            </span>
             <span>{content.copy.footerNote}</span>
           </div>
         </footer>

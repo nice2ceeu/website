@@ -29,6 +29,15 @@ export const contentFields = [
   ['collectionLabel', 'Collection', 'Eyebrow', 'THE EVERYDAY COLLECTION / 01'],
   ['collectionTitle', 'Collection', 'Heading', 'Your rotation,'],
   ['collectionAccent', 'Collection', 'Heading emphasis', 'upgraded.'],
+  ['shopEyebrow', 'Shop page', 'Eyebrow', 'THE EVERYDAY COLLECTION / 01'],
+  ['shopTitle', 'Shop page', 'Heading', 'Find your'],
+  ['shopAccent', 'Shop page', 'Heading emphasis', 'kind of tee.'],
+  [
+    'shopDescription',
+    'Shop page',
+    'Description',
+    'Original designs. A little more you.\nBrowse the collection and make one yours.',
+  ],
   [
     'collectionDescription',
     'Collection',
@@ -122,7 +131,13 @@ export const contentFields = [
   ['ctaAccent', 'Bottom CTA', 'Heading emphasis', 'Wear your personality.'],
   ['ctaButton', 'Bottom CTA', 'Shop button label', 'Shop the tees'],
   ['footerTagline', 'Header & footer', 'Footer tagline', 'Wear what feels like you.'],
-  ['footerNote', 'Header & footer', 'Footer note', 'Made for your everyday.'],
+  [
+    'footerCopyright',
+    'Header & footer',
+    'Copyright text (displayed after © 2026)',
+    'LIGHTMARE PH. A little out of line.',
+  ],
+  ['footerNote', 'Header & footer', 'Footer note', 'See you in your next lightmare'],
 ] as const;
 export type ContentKey = (typeof contentFields)[number][0];
 const text = z.string().trim().min(1).max(2000);
@@ -213,6 +228,13 @@ export const landingSchema = z.object({
       >,
     )
     .extend({
+      shopEyebrow: text.default('THE EVERYDAY COLLECTION / 01'),
+      shopTitle: text.default('Find your'),
+      shopAccent: text.default('kind of tee.'),
+      shopDescription: text.default(
+        'Original designs. A little more you.\nBrowse the collection and make one yours.',
+      ),
+      footerCopyright: text.default('LIGHTMARE PH. A little out of line.'),
       aboutLabel: text.default('About Lightmare'),
       aboutHeading: z.string().trim().max(2000).default(''),
       aboutBody: z.string().trim().max(2000).default(''),

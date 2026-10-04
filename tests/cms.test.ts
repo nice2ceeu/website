@@ -6,6 +6,30 @@ import handler from '../pages/api/admin/content';
 import { db } from '../lib/db';
 import { makeSession, cookieName } from '../lib/auth';
 import { getLanding } from '../lib/cms';
+test('shop and copyright fields default for existing records and preserve edited copy', () => {
+  const keys = [
+    'shopEyebrow',
+    'shopTitle',
+    'shopAccent',
+    'shopDescription',
+    'footerCopyright',
+  ] as const;
+  const copy = { ...defaultLanding.copy } as Record<string, string>;
+  for (const key of keys) delete copy[key];
+  copy.footerNote = 'Saved footer note';
+  const parsed = landingSchema.parse({ ...defaultLanding, copy });
+  for (const key of keys) assert.equal(parsed.copy[key], defaultLanding.copy[key]);
+  assert.equal(parsed.copy.footerNote, 'Saved footer note');
+  const edited = {
+    ...parsed.copy,
+    shopTitle: 'Explore our',
+    shopAccent: 'latest tees.',
+    shopDescription: 'First line.\nSecond line.',
+    footerCopyright: 'LIGHTMARE PH. Made for you.',
+  };
+  assert.deepEqual(landingSchema.parse({ ...parsed, copy: edited }).copy, edited);
+});
+
 test('retired carousel settings are stripped without changing active content', () => {
   const legacy = {
     ...defaultLanding,

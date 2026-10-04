@@ -91,7 +91,7 @@ export default function ContentEditor({
       setRevision(result.revision);
       setDraft(publishedContent);
       setSaved(publishedContent);
-      setMessage('Published. Your landing page now shows the updated content.');
+      setMessage('Published. Your storefront now shows the updated content.');
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Unable to publish content.');
     } finally {

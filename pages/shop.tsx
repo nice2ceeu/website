@@ -43,16 +43,12 @@ export default function Shop({
         </Link>
         <div className="section-heading">
           <div>
-            <div className="eyebrow">THE EVERYDAY COLLECTION / 01</div>
+            <div className="eyebrow">{content.copy.shopEyebrow}</div>
             <h1>
-              Find your <em>kind of tee.</em>
+              {content.copy.shopTitle} <em>{content.copy.shopAccent}</em>
             </h1>
           </div>
-          <p>
-            Original designs. A little more you.
-            <br />
-            Browse the collection and make one yours.
-          </p>
+          <p style={{ whiteSpace: 'pre-line' }}>{content.copy.shopDescription}</p>
         </div>
         <div className="shop-controls">
           <label id="shop-search">
