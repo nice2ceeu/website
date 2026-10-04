@@ -128,7 +128,8 @@ export default function Home({
           <div>
             <div className="eyebrow">{c.collectionLabel}</div>
             <h2>
-              {c.collectionTitle} <em>{c.collectionAccent}</em>
+              {c.collectionTitle.replace(/\s+/g, ' ').trim()}{' '}
+              <em>{c.collectionAccent.replace(/\s+/g, ' ').trim()}</em>
             </h2>
           </div>
           <p className="cms-copy">{c.collectionDescription}</p>
