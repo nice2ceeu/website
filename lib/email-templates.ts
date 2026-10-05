@@ -18,7 +18,7 @@ export type EmailOrder = {
   total: number;
   createdAt?: string;
   status?: string;
-  paymentMethod?: 'gcash' | 'bank' | 'cod';
+  paymentMethod?: 'gcash' | 'bank' | 'cod' | 'qr';
   paymentDetails?: string;
 };
 
@@ -40,7 +40,13 @@ export function orderEmail(order: EmailOrder, audience: 'customer' | 'admin') {
   const cancelled = status === 'cancelled';
   const method = order.paymentMethod || 'cod';
   const methodLabel =
-    method === 'gcash' ? 'GCash' : method === 'bank' ? 'Bank transfer' : 'Cash on delivery';
+    method === 'gcash'
+      ? 'GCash'
+      : method === 'bank'
+        ? 'Bank transfer'
+        : method === 'qr'
+          ? 'QR payment'
+          : 'Cash on delivery';
   const payment = cancelled
     ? 'Order cancelled'
     : paid

@@ -22,13 +22,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const value = parsed.data;
   try {
     const [result] = await db().execute<ResultSetHeader>(
-      'UPDATE payment_settings SET gcash_enabled=?,gcash_details=?,bank_enabled=?,bank_details=?,cod_enabled=?,revision=revision+1 WHERE id=1 AND revision=?',
+      'UPDATE payment_settings SET gcash_enabled=?,gcash_details=?,bank_enabled=?,bank_details=?,cod_enabled=?,qr_enabled=?,qr_details=?,qr_image_url=?,revision=revision+1 WHERE id=1 AND revision=?',
       [
         value.gcashEnabled,
         value.gcashDetails,
         value.bankEnabled,
         value.bankDetails,
         value.codEnabled,
+        value.qrEnabled,
+        value.qrDetails,
+        value.qrImageUrl,
         revision,
       ],
     );

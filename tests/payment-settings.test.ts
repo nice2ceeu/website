@@ -8,6 +8,9 @@ const settings = {
   bankEnabled: true,
   bankDetails: 'Example Bank 1234',
   codEnabled: true,
+  qrEnabled: false,
+  qrDetails: '',
+  qrImageUrl: '',
 };
 
 test('payment settings require instructions and orders use trusted configured details', () => {
@@ -25,4 +28,27 @@ test('payment settings require instructions and orders use trusted configured de
     }).success,
     false,
   );
+});
+
+test('QR payment requires an image and saves trusted instructions', () => {
+  const qr = {
+    ...settings,
+    gcashEnabled: false,
+    bankEnabled: false,
+    codEnabled: false,
+    qrEnabled: true,
+    qrDetails: 'Scan and enter the order total.',
+    qrImageUrl: 'https://example.com/pay.png',
+  };
+  assert.ok(paymentSettingsSchema.safeParse(qr).success);
+  assert.equal(paymentSettingsSchema.safeParse({ ...qr, qrImageUrl: '' }).success, false);
+  assert.equal(
+    paymentSettingsSchema.safeParse({ ...qr, qrImageUrl: 'javascript:alert(1)' }).success,
+    false,
+  );
+  assert.equal(
+    paymentForOrder('qr', qr).paymentDetails,
+    'Scan and enter the order total.\nQR payment image: https://example.com/pay.png',
+  );
+  assert.throws(() => paymentForOrder('qr', { ...qr, qrEnabled: false }));
 });

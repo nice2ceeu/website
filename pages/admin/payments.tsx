@@ -16,7 +16,27 @@ export default function Payments({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const dirty = JSON.stringify(settings) !== JSON.stringify(saved);
+  async function uploadQr(file: File) {
+    setUploading(true);
+    setError('');
+    setMessage('');
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to upload QR image.');
+      setSettings((current) => ({ ...current, qrImageUrl: data.url }));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to upload QR image.');
+    } finally {
+      setUploading(false);
+    }
+  }
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -48,6 +68,57 @@ export default function Payments({
         payment gateway.
       </p>
       <form onSubmit={publish} className="payment-settings-form">
+        <section className="order-panel">
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={settings.qrEnabled}
+              onChange={(event) => setSettings({ ...settings, qrEnabled: event.target.checked })}
+            />
+            <strong>Offer QR payment</strong>
+          </label>
+          <label>
+            Upload payment QR code
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              disabled={busy || uploading}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void uploadQr(file);
+                event.target.value = '';
+              }}
+            />
+          </label>
+          {uploading && <p role="status">Uploading QR code...</p>}
+          <label>
+            QR image URL
+            <input
+              type="url"
+              maxLength={2000}
+              placeholder="https://..."
+              value={settings.qrImageUrl}
+              onChange={(event) => setSettings({ ...settings, qrImageUrl: event.target.value })}
+            />
+          </label>
+          {settings.qrImageUrl && /^https:\/\//i.test(settings.qrImageUrl) && (
+            <img className="payment-qr" src={settings.qrImageUrl} alt="Payment QR code preview" />
+          )}
+          <label>
+            QR payment instructions
+            <textarea
+              rows={4}
+              maxLength={1000}
+              placeholder="Scan the QR code with your payment app. Account name: Lightmare PH"
+              value={settings.qrDetails}
+              onChange={(event) => setSettings({ ...settings, qrDetails: event.target.value })}
+            />
+          </label>
+          <p className="form-note">
+            Upload your payment provider's QR code. Customers scan it and enter their order total;
+            payment is confirmed manually.
+          </p>
+        </section>
         <section className="order-panel">
           <label className="checkbox">
             <input
@@ -114,13 +185,13 @@ export default function Payments({
           </p>
         )}
         <div className="product-actions">
-          <button className="button" disabled={busy || !dirty}>
+          <button className="button" disabled={busy || uploading || !dirty}>
             {busy ? 'Publishing…' : 'Publish payment settings'}
           </button>
           <button
             className="text-link"
             type="button"
-            disabled={busy || !dirty}
+            disabled={busy || uploading || !dirty}
             onClick={() => setSettings(saved)}
           >
             Discard changes

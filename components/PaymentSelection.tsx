@@ -1,22 +1,34 @@
 import type { PaymentSettings } from '@/lib/payment-settings';
 
-const labels = { gcash: 'GCash', bank: 'Bank transfer', cod: 'Cash on delivery' } as const;
+const labels = {
+  gcash: 'GCash',
+  bank: 'Bank transfer',
+  cod: 'Cash on delivery',
+  qr: 'QR payment',
+} as const;
 export default function PaymentSelection({
   settings,
   value,
   onChange,
 }: {
   settings: PaymentSettings;
-  value: 'gcash' | 'bank' | 'cod' | '';
-  onChange: (value: 'gcash' | 'bank' | 'cod') => void;
+  value: 'gcash' | 'bank' | 'cod' | 'qr' | '';
+  onChange: (value: 'gcash' | 'bank' | 'cod' | 'qr') => void;
 }) {
   const methods = [
     settings.gcashEnabled && 'gcash',
     settings.bankEnabled && 'bank',
     settings.codEnabled && 'cod',
-  ].filter(Boolean) as Array<'gcash' | 'bank' | 'cod'>;
+    settings.qrEnabled && 'qr',
+  ].filter(Boolean) as Array<'gcash' | 'bank' | 'cod' | 'qr'>;
   const details =
-    value === 'gcash' ? settings.gcashDetails : value === 'bank' ? settings.bankDetails : '';
+    value === 'gcash'
+      ? settings.gcashDetails
+      : value === 'bank'
+        ? settings.bankDetails
+        : value === 'qr'
+          ? settings.qrDetails
+          : '';
   return (
     <fieldset className="full payment-selection">
       <legend>Payment method</legend>
@@ -35,9 +47,16 @@ export default function PaymentSelection({
           </label>
         ))}
       </div>
-      {details && (
+      {(details || (value === 'qr' && settings.qrImageUrl)) && (
         <div className="payment-instructions" role="status">
           <strong>Send your payment here</strong>
+          {value === 'qr' && settings.qrImageUrl && (
+            <img
+              className="payment-qr"
+              src={settings.qrImageUrl}
+              alt="Scan this QR code to pay Lightmare PH"
+            />
+          )}
           <p>{details}</p>
           <small>Payment is confirmed manually after your order is submitted.</small>
         </div>

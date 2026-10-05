@@ -61,7 +61,7 @@ export default function CartCheckout({
       areaLabel = shippingAreas[shippingArea(province)];
     } catch {}
   }
-  const [paymentMethod, setPaymentMethod] = useState<'gcash' | 'bank' | 'cod' | ''>('');
+  const [paymentMethod, setPaymentMethod] = useState<'gcash' | 'bank' | 'cod' | 'qr' | ''>('');
   const [result, setResult] = useState<{ reference: string; emailStatus: string } | null>(null);
   const key = useRef('');
   const snapshot = useRef('');
@@ -71,7 +71,9 @@ export default function CartCheckout({
       ? settings.gcashDetails
       : paymentMethod === 'bank'
         ? settings.bankDetails
-        : '';
+        : paymentMethod === 'qr'
+          ? settings.qrDetails
+          : '';
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || !items.length || quotedShipping === null) return;
@@ -150,9 +152,16 @@ export default function CartCheckout({
           <p>
             Total: <strong>{money(submittedTotal.current)}</strong>
           </p>
-          {selectedPaymentDetails && (
+          {(selectedPaymentDetails || (paymentMethod === 'qr' && settings.qrImageUrl)) && (
             <div className="payment-instructions">
               <strong>Send your payment here</strong>
+              {paymentMethod === 'qr' && settings.qrImageUrl && (
+                <img
+                  className="payment-qr"
+                  src={settings.qrImageUrl}
+                  alt="Scan this QR code to pay Lightmare PH"
+                />
+              )}
               <p>{selectedPaymentDetails}</p>
               <small>Lightmare PH confirms payment manually.</small>
             </div>

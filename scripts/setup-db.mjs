@@ -29,6 +29,9 @@ try {
   );
   await connection.execute('INSERT IGNORE INTO shipping_settings (id) VALUES (1)');
   for (const statement of [
+    'ALTER TABLE payment_settings ADD COLUMN qr_enabled BOOLEAN NOT NULL DEFAULT FALSE',
+    'ALTER TABLE payment_settings ADD COLUMN qr_details TEXT NULL',
+    "ALTER TABLE payment_settings ADD COLUMN qr_image_url VARCHAR(2000) NOT NULL DEFAULT ''",
     'ALTER TABLE orders ADD COLUMN items JSON NULL AFTER total',
     "ALTER TABLE orders ADD COLUMN payment_method ENUM('gcash','bank','cod') NOT NULL DEFAULT 'cod' AFTER notes",
     'ALTER TABLE orders ADD COLUMN payment_details TEXT NOT NULL AFTER payment_method',
@@ -39,6 +42,9 @@ try {
       if (error.code !== 'ER_DUP_FIELDNAME') throw error;
     }
   }
+  await connection.query(
+    "ALTER TABLE orders MODIFY COLUMN payment_method ENUM('gcash','bank','cod','qr') NOT NULL DEFAULT 'cod'",
+  );
   await connection.execute(
     'INSERT IGNORE INTO payment_settings (id,gcash_details,bank_details) VALUES (1,?,?)',
     ['', ''],

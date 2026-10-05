@@ -209,7 +209,9 @@ export default function Orders({
                     ? 'GCash'
                     : order.payment_method === 'bank'
                       ? 'Bank transfer'
-                      : 'Cash on delivery'}
+                      : order.payment_method === 'qr'
+                        ? 'QR payment'
+                        : 'Cash on delivery'}
                 </strong>
               </p>
               {order.payment_details && (
